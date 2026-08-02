@@ -247,10 +247,6 @@ dotnet publish .\Bakery.WPF\Bakery.WPF.csproj `
   -o .\publish
 ```
 
-## Screenshots
-
-Application screenshots are not currently stored in the repository. **Screenshots coming soon.**
-
 ## 📚 Documentation
 
 | Document | Scope |
@@ -267,7 +263,6 @@ Additional operational and technical guidance is available through the [document
 The following items are **planned improvements**, not implemented features:
 
 - Add a LocalDB-capable GitHub Actions workflow before publishing any build-status badge.
-- Add redacted screenshots from the current application.
 - Add Authenticode signing and automated, checksum-published installer releases.
 - Move reporting data access behind application-owned query contracts to remove the direct reporting-to-infrastructure dependency.
 - Expand clean-machine, physical printer, restore-drill, and live Google Drive acceptance testing.
