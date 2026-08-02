@@ -1,0 +1,141 @@
+<Window x:Class="Bakery.WPF.TreasuryTransactionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:enums="clr-namespace:Bakery.Domain.Enums;assembly=Bakery.Domain"
+         Title="معاملة مالية" Height="600" Width="420"
+         WindowStartupLocation="CenterOwner"
+         Background="#F6F3EF"
+         FontFamily="Cairo, Segoe UI"
+         FlowDirection="RightToLeft">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+ 
+        <TextBlock Text="تفاصيل المعاملة" FontSize="24" FontWeight="Bold" Foreground="#2B211D" Margin="0,0,0,20"/>
+ 
+        <StackPanel Grid.Row="1">
+            <ComboBox materialDesign:HintAssist.Hint="الخزنة" 
+                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                      ItemsSource="{Binding Safes}"
+                      SelectedValue="{Binding SelectedSafeId}"
+                      SelectedValuePath="Id"
+                      DisplayMemberPath="DisplayName"
+                      IsEnabled="{Binding CanChangeSafe}"
+                      Margin="0,0,0,8"/>
+ 
+            <StackPanel Orientation="Horizontal" Margin="4,0,0,16">
+                <TextBlock Text="الرصيد الحالي: " Foreground="#6D4C41" FontSize="12"/>
+                <TextBlock Text="{Binding CurrentSafeBalance, StringFormat={}{0:N2} ج.م}" FontWeight="Bold" Foreground="#2B211D" FontSize="12"/>
+            </StackPanel>
+ 
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <RadioButton Content="إيداع" IsChecked="{Binding IsDeposit}" Margin="0,0,8,0" Style="{StaticResource MaterialDesignChoiceChipPrimaryRadioButton}"/>
+                <RadioButton Grid.Column="1" Content="سحب" IsChecked="{Binding IsDeposit, Converter={StaticResource InverseBooleanConverter}}" Style="{StaticResource MaterialDesignChoiceChipPrimaryRadioButton}"/>
+            </Grid>
+ 
+            <ComboBox materialDesign:HintAssist.Hint="السبب" 
+                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                      ItemsSource="{Binding PredefinedReasons}"
+                      SelectedItem="{Binding SelectedReason}"
+                      Margin="0,0,0,16">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock>
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                         <Trigger Property="DataContext" Value="{x:Static enums:ManualMovementReason.OwnerCapital}">
+                                            <Setter Property="Text" Value="رأس مال المالك" />
+                                        </Trigger>
+                                        <Trigger Property="DataContext" Value="{x:Static enums:ManualMovementReason.OwnerWithdrawal}">
+                                            <Setter Property="Text" Value="مسحوبات المالك" />
+                                        </Trigger>
+                                        <Trigger Property="DataContext" Value="{x:Static enums:ManualMovementReason.BankDeposit}">
+                                            <Setter Property="Text" Value="إيداع بنكي" />
+                                        </Trigger>
+                                        <Trigger Property="DataContext" Value="{x:Static enums:ManualMovementReason.BankWithdrawal}">
+                                            <Setter Property="Text" Value="سحب بنكي" />
+                                        </Trigger>
+                                        <Trigger Property="DataContext" Value="{x:Static enums:ManualMovementReason.CashAdjustment}">
+                                            <Setter Property="Text" Value="تسوية نقدية" />
+                                        </Trigger>
+                                        <Trigger Property="DataContext" Value="{x:Static enums:ManualMovementReason.TransferCorrection}">
+                                            <Setter Property="Text" Value="تصحيح تحويل" />
+                                        </Trigger>
+                                        <Trigger Property="DataContext" Value="{x:Static enums:ManualMovementReason.Emergency}">
+                                            <Setter Property="Text" Value="حركة نقدية طارئة" />
+                                        </Trigger>
+                                        <Trigger Property="DataContext" Value="{x:Static enums:ManualMovementReason.Other}">
+                                            <Setter Property="Text" Value="أخرى" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+ 
+            <TextBox materialDesign:HintAssist.Hint="البيان (مطلوب)"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                     Visibility="{Binding IsOtherSelected, Converter={StaticResource BooleanToVisibilityConverter}}"
+                     AcceptsReturn="True" Height="60"
+                     VerticalContentAlignment="Top"
+                     Margin="0,0,0,16"/>
+ 
+            <TextBox materialDesign:HintAssist.Hint="المبلغ"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}"
+                     Margin="0,0,0,4"/>
+ 
+            <TextBlock Text="{Binding BalanceWarning}" 
+                       Foreground="#D32F2F" 
+                       FontSize="11" 
+                       Margin="4,0,0,8"
+                       Visibility="{Binding IsInsufficientFunds, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+ 
+            <TextBox materialDesign:HintAssist.Hint="رقم المرجع (اختياري)"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Text="{Binding ReferenceNumber, UpdateSourceTrigger=PropertyChanged}"
+                     Margin="0,0,0,16"/>
+ 
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox materialDesign:HintAssist.Hint="المرفق (اختياري)"
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         Text="{Binding AttachmentPath}"
+                         IsReadOnly="True"
+                         Margin="0,0,8,0"/>
+                <Button Grid.Column="1" 
+                        Content="إرفاق ملف" 
+                        Command="{Binding BrowseAttachmentCommand}"
+                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                        BorderBrush="#8B5E4C" Foreground="#8B5E4C"
+                        Height="40"/>
+            </Grid>
+        </StackPanel>
+ 
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="إلغاء" Style="{StaticResource MaterialDesignFlatButton}" Command="{Binding CancelCommand}" Margin="0,0,8,0"/>
+            <Button Content="حفظ" 
+                    Style="{StaticResource MaterialDesignRaisedButton}" 
+                    Command="{Binding SaveCommand}" 
+                    Width="100" 
+                    Background="#8B5E4C" 
+                    BorderBrush="#8B5E4C"
+                    IsEnabled="{Binding CanSubmit}"/>
+        </StackPanel>
+    </Grid>
+</Window>

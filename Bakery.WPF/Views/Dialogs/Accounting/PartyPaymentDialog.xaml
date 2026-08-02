@@ -1,0 +1,79 @@
+<Window x:Class="Bakery.WPF.Views.PartyPaymentDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="تسوية الدفعات" Height="550" Width="420"
+        WindowStartupLocation="CenterOwner"
+        Background="#F6F3EF"
+        FontFamily="Cairo, Segoe UI"
+        FlowDirection="RightToLeft">
+    
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="تسوية الدفعات" FontSize="24" FontWeight="Bold" Foreground="#2B211D" Margin="0,0,0,20"/>
+
+        <StackPanel Grid.Row="1">
+            
+            <TextBox materialDesign:HintAssist.Hint="الطرف"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Text="{Binding Party.Name, Mode=OneWay}"
+                     IsReadOnly="True"
+                     Margin="0,0,0,16"/>
+
+            <TextBox materialDesign:HintAssist.Hint="نوع العملية"
+                      Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                      Text="{Binding OperationTypeDisplay, Mode=OneWay}"
+                      IsReadOnly="True"
+                      Visibility="{Binding OperationTextBoxVisibility}"
+                      Margin="0,0,0,16"/>
+
+            <ComboBox materialDesign:HintAssist.Hint="نوع العملية"
+                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                      SelectedIndex="{Binding SelectedOperationIndex}"
+                      Visibility="{Binding MixedComboVisibility}"
+                      Margin="0,0,0,16">
+                <ComboBoxItem Content="استلام نقدية من العميل (وارد للخزينة)" />
+                <ComboBoxItem Content="صرف نقدية للمورد (صادر من الخزينة)" />
+            </ComboBox>
+
+            <ComboBox materialDesign:HintAssist.Hint="الخزنة" 
+                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                      ItemsSource="{Binding Safes}"
+                      SelectedValue="{Binding SelectedSafeId}"
+                      SelectedValuePath="Id"
+                      DisplayMemberPath="DisplayName"
+                      IsEnabled="{Binding CanChangeSafe}"
+                      Margin="0,0,0,16"/>
+
+            <TextBox materialDesign:HintAssist.Hint="المبلغ"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}"
+                     Margin="0,0,0,16"/>
+
+            <DatePicker materialDesign:HintAssist.Hint="التاريخ"
+                        Style="{StaticResource MaterialDesignOutlinedDatePicker}"
+                        SelectedDate="{Binding Date}"
+                        Margin="0,0,0,16"/>
+
+            <TextBox materialDesign:HintAssist.Hint="البيان (اختياري)"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                     TextWrapping="Wrap"
+                     AcceptsReturn="True"
+                     Height="80"
+                     VerticalScrollBarVisibility="Auto"
+                     Margin="0,0,0,16"/>
+                     
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="إلغاء" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding CancelCommand}" Margin="0,0,8,0" Foreground="#2B211D" BorderBrush="#2B211D" IsEnabled="{Binding IsSaving, Converter={StaticResource InverseBooleanConverter}}"/>
+            <Button Content="حفظ" Style="{StaticResource MaterialDesignFlatDarkBgButton}" Command="{Binding SaveCommand}" Background="#2B211D" BorderBrush="#2B211D" IsEnabled="{Binding IsSaving, Converter={StaticResource InverseBooleanConverter}}"/>
+        </StackPanel>
+    </Grid>
+</Window>

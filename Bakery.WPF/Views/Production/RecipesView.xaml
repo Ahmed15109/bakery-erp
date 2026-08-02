@@ -1,0 +1,107 @@
+<UserControl x:Class="Bakery.WPF.Views.RecipesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:loc="clr-namespace:Bakery.Shared.Helpers;assembly=Bakery.Shared"
+             xmlns:auth="clr-namespace:Bakery.WPF.Authorization"
+             Background="{StaticResource SurfaceBrush}"
+             FlowDirection="RightToLeft">
+    <Grid Margin="32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Margin="0,0,0,32">
+            <StackPanel>
+                <TextBlock Text="إدارة الوصفات" FontSize="32" FontWeight="Black" Foreground="{StaticResource SidebarBrush}"/>
+                <TextBlock Text="تحديد المكونات والمعايير للمنتجات النهائية" FontSize="16" Foreground="#6B625D" Margin="0,4,0,0"/>
+            </StackPanel>
+            
+            <Button HorizontalAlignment="Left" VerticalAlignment="Center"
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    Background="#8B5E4C" BorderBrush="#8B5E4C"
+                    Height="50" md:ButtonAssist.CornerRadius="12"
+                    auth:PermissionAssist.Required="Production.Create">
+                <StackPanel Orientation="Horizontal">
+                    <md:PackIcon Kind="Plus" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock Text="إضافة وصفة جديدة" FontWeight="Bold"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="400" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Recipes List -->
+            <md:Card Margin="0,0,24,0" UniformCornerRadius="16" Padding="0">
+                <DataGrid ItemsSource="{Binding Recipes}"
+                          SelectedItem="{Binding SelectedRecipe}"
+                          AutoGenerateColumns="False" CanUserAddRows="False"
+                          Style="{StaticResource MaterialDesignDataGrid}"
+                          Background="Transparent">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="اسم الوصفة" Binding="{Binding Name}" Width="*" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="المنتج النهائي" Binding="{Binding ProducedItem.Name}" Width="*" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="الكمية الافتراضية" Binding="{Binding ProducedQuantity}" Width="150" IsReadOnly="True"/>
+                        <DataGridTemplateColumn Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Style="{StaticResource MaterialDesignIconButton}" Foreground="#8B5E4C"
+                                                auth:PermissionAssist.Required="Production.Edit">
+                                            <md:PackIcon Kind="PencilOutline" />
+                                        </Button>
+                                        <Button Command="{Binding DataContext.DeleteRecipeCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource MaterialDesignIconButton}" Foreground="#C62828"
+                                                auth:PermissionAssist.Required="Production.Edit">
+                                            <md:PackIcon Kind="DeleteOutline" />
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </md:Card>
+
+            <!-- Recipe Details (Ingredients) -->
+            <md:Card Grid.Column="1" UniformCornerRadius="16" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Border Background="#F3E8DF" Padding="16,12" CornerRadius="16,16,0,0">
+                        <TextBlock Text="تفاصيل المكونات" FontWeight="Bold" Foreground="#8B5E4C"/>
+                    </Border>
+
+                    <Grid Grid.Row="1" Margin="16" Visibility="{Binding SelectedRecipe, Converter={StaticResource NullToVisibilityConverter}}">
+                        <DataGrid ItemsSource="{Binding SelectedRecipe.ConsumedItems}"
+                                  AutoGenerateColumns="False" CanUserAddRows="False"
+                                  Style="{StaticResource MaterialDesignDataGrid}"
+                                  Background="Transparent">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="المكون" Binding="{Binding RawItem.Name}" Width="*" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="الكمية" Binding="{Binding Quantity}" Width="80" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="الوحدة" Binding="{Binding Unit.Name}" Width="80" IsReadOnly="True"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                    
+                    <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                Visibility="{Binding SelectedRecipe, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=Invert}">
+                        <md:PackIcon Kind="InformationOutline" Width="48" Height="48" Foreground="#F3E8DF" HorizontalAlignment="Center"/>
+                        <TextBlock Text="اختر وصفة لعرض مكوناتها" Foreground="#6B625D" Margin="0,16,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </md:Card>
+        </Grid>
+    </Grid>
+</UserControl>

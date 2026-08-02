@@ -1,0 +1,148 @@
+<Window x:Class="Bakery.WPF.SafeManagementDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:converters="clr-namespace:Bakery.WPF.Converters"
+        Title="إدارة الخزن" Height="500" Width="680"
+        WindowStartupLocation="CenterOwner"
+        Background="#F6F3EF"
+        FontFamily="Cairo, Segoe UI"
+        FlowDirection="RightToLeft">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="إدارة الحسابات النقدية (الخزن)" FontSize="24" FontWeight="Bold" Foreground="#2B211D" Margin="0,0,0,20"/>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="150" />
+            </Grid.ColumnDefinitions>
+
+            <DataGrid ItemsSource="{Binding Safes}"
+                      SelectedItem="{Binding SelectedSafe}"
+                      AutoGenerateColumns="False" IsReadOnly="True"
+                      Background="White" BorderThickness="1" BorderBrush="#E0E0E0"
+                      GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F3F4F6"
+                      RowHeight="40" ColumnHeaderHeight="40" HeadersVisibility="Column"
+                      Style="{StaticResource MaterialDesignDataGrid}">
+                <DataGrid.Resources>
+                    <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                        <Setter Property="Background" Value="#F9FAFB"/>
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="Padding" Value="12,0"/>
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="اسم الخزنة" Binding="{Binding DisplayName}" Width="*" />
+                    <DataGridTextColumn Header="الرصيد" Binding="{Binding Balance, StringFormat='N2'}" Width="120">
+                        <DataGridTextColumn.CellStyle>
+                            <Style TargetType="DataGridCell" BasedOn="{StaticResource MaterialDesignDataGridCell}">
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="FontFamily" Value="Consolas"/>
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.CellStyle>
+                    </DataGridTextColumn>
+                    <DataGridTemplateColumn Header="الحالة" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="نشطة"/>
+                                            <Setter Property="Foreground" Value="#27AE60"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                    <Setter Property="Text" Value="غير نشطة"/>
+                                                    <Setter Property="Foreground" Value="#7F8C8D"/>
+                                                    <Setter Property="FontWeight" Value="Normal"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="النوع" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="{Binding TypeDisplayName}"/>
+                                            <Setter Property="Foreground" Value="#2C3E50"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSystem}" Value="True">
+                                                    <Setter Property="Foreground" Value="#8B5E4C"/>
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                <Button Content="إضافة خزنة" 
+                        Style="{StaticResource MaterialDesignRaisedButton}" 
+                        Command="{Binding AddSafeCommand}" 
+                        Background="#27AE60" BorderBrush="#27AE60"
+                        Margin="0,0,0,12"/>
+
+                <Button Content="تعديل" 
+                        Command="{Binding EditSafeCommand}" 
+                        Background="#8B5E4C" BorderBrush="#8B5E4C"
+                        Margin="0,0,0,12">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
+                            <Setter Property="IsEnabled" Value="True"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedSafe}" Value="{x:Null}">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Content="تعطيل" 
+                        Command="{Binding DeactivateSafeCommand}" 
+                        Background="#C0392B" BorderBrush="#C0392B"
+                        Margin="0,0,0,12">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
+                            <Setter Property="IsEnabled" Value="True"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedSafe}" Value="{x:Null}">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding SelectedSafe.IsSystem}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding SelectedSafe.IsActive}" Value="False">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button Content="إغلاق" Style="{StaticResource MaterialDesignFlatButton}" Command="{Binding CloseCommand}" Width="100"/>
+        </StackPanel>
+    </Grid>
+</Window>

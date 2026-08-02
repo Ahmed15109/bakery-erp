@@ -1,0 +1,59 @@
+<Window x:Class="Bakery.WPF.Views.SafeSelectionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:loc="clr-namespace:Bakery.Shared.Helpers;assembly=Bakery.Shared"
+        Title="اختر الخزنة"
+        Height="300"
+        Width="450"
+        MinHeight="250"
+        MinWidth="400"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Style="{StaticResource MaterialDesignWindow}"
+        Background="{StaticResource SurfaceBrush}"
+        FlowDirection="RightToLeft">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="اختر الخزنة" FontSize="22" FontWeight="Black" Foreground="#2D2422"/>
+            <TextBlock Text="يرجى اختيار الخزنة لبدء العمليات النقدية" FontSize="12" Foreground="#8B7E7A"/>
+        </StackPanel>
+
+        <!-- ComboBox selection -->
+        <Grid Grid.Row="1" VerticalAlignment="Center">
+            <md:Card md:ElevationAssist.Elevation="Dp2" 
+                      UniformCornerRadius="12" 
+                      Background="White"
+                      Margin="0,0,0,8">
+                <ComboBox md:HintAssist.Hint="الخزنة"
+                           Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                           FontSize="16"
+                           Padding="16,8"
+                           Height="56"
+                           BorderThickness="0"
+                           ItemsSource="{Binding Safes}"
+                           SelectedItem="{Binding SelectedSafe}"
+                           DisplayMemberPath="DisplayName"/>
+            </md:Card>
+        </Grid>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button Content="{x:Static loc:Loc.DialogCancel}" IsCancel="True" Style="{StaticResource MaterialDesignFlatButton}" Margin="0,0,10,0" />
+            <Button Command="{Binding ConfirmCommand}"
+                    Content="تأكيد"
+                    IsDefault="True"
+                    Width="130"
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    Background="#8B5E4C"
+                    BorderBrush="#8B5E4C"/>
+        </StackPanel>
+    </Grid>
+</Window>

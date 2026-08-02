@@ -1,0 +1,72 @@
+<Window x:Class="Bakery.WPF.ReverseTransactionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+         Title="إلغاء المعاملة" Height="420" Width="400"
+        WindowStartupLocation="CenterOwner"
+        Background="#F6F3EF"
+        FontFamily="Cairo, Segoe UI"
+        FlowDirection="RightToLeft">
+    
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="تأكيد إلغاء المعاملة" FontSize="20" FontWeight="Bold" Foreground="#2B211D" Margin="0,0,0,16"/>
+
+        <StackPanel Grid.Row="1">
+            <TextBlock Text="هل أنت متأكد من رغبتك في إلغاء المعاملة النقدية التالية؟" Foreground="#D63031" FontWeight="Bold" FontSize="13" Margin="0,0,0,16" TextWrapping="Wrap"/>
+            
+            <Border Background="White" CornerRadius="8" Padding="12" Margin="0,0,0,16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="رقم المعاملة: " Foreground="#636E72" FontSize="12"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding TransactionNumber}" FontWeight="Bold" Foreground="#2D3436" FontSize="12"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="المبلغ: " Foreground="#636E72" FontSize="12" Margin="0,6,0,0"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Amount, StringFormat={}{0:N2} ج.م}" FontWeight="Bold" Foreground="#2D3436" FontSize="12" Margin="0,6,0,0"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="المستخدم: " Foreground="#636E72" FontSize="12" Margin="0,6,0,0"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CreatedBy}" FontWeight="Bold" Foreground="#2D3436" FontSize="12" Margin="0,6,0,0"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="الوقت: " Foreground="#636E72" FontSize="12" Margin="0,6,0,0"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Date, StringFormat='yyyy-MM-dd HH:mm'}" FontWeight="Bold" Foreground="#2D3436" FontSize="12" Margin="0,6,0,0"/>
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="السبب: " Foreground="#636E72" FontSize="12" Margin="0,6,0,0"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding OriginalReason}" FontWeight="Bold" Foreground="#2D3436" FontSize="12" Margin="0,6,0,0"/>
+                </Grid>
+            </Border>
+
+            <TextBox materialDesign:HintAssist.Hint="سبب الإلغاء (مطلوب)"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Text="{Binding ReverseReason, UpdateSourceTrigger=PropertyChanged}"
+                     AcceptsReturn="True" Height="60"
+                     VerticalContentAlignment="Top"
+                     Margin="0,0,0,16"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="تراجع" Style="{StaticResource MaterialDesignFlatButton}" Command="{Binding CancelCommand}" Margin="0,0,8,0"/>
+            <Button Content="تأكيد الإلغاء" 
+                    Style="{StaticResource MaterialDesignRaisedButton}" 
+                    Command="{Binding ConfirmCommand}" 
+                    Background="#D63031" 
+                    BorderBrush="#D63031"
+                    Width="120"/>
+        </StackPanel>
+    </Grid>
+</Window>

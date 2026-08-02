@@ -1,0 +1,237 @@
+<UserControl x:Class="Bakery.WPF.Views.ProductionOrdersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:loc="clr-namespace:Bakery.Shared.Helpers;assembly=Bakery.Shared"
+             xmlns:auth="clr-namespace:Bakery.WPF.Authorization"
+             Background="{StaticResource SurfaceBrush}"
+             FlowDirection="RightToLeft">
+    <UserControl.Resources>
+        <Style x:Key="PremiumPosTextBox" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="#E8DED7"/>
+            <Setter Property="md:TextFieldAssist.DecorationVisibility" Value="Collapsed"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="md:TextFieldAssist.TextFieldCornerRadius" Value="10"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- TOP: Produced Item Header -->
+        <md:Card UniformCornerRadius="16" Padding="24" Margin="0,0,0,24">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="المنتج النهائي" FontSize="13" FontWeight="Bold" Foreground="#6B625D" Margin="0,0,0,8"/>
+                    <ComboBox ItemsSource="{Binding ProducedItems}" SelectedItem="{Binding SelectedProducedItem}"
+                              Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                              md:TextFieldAssist.TextFieldCornerRadius="10"
+                              DisplayMemberPath="Name" FontSize="18" FontWeight="Bold" x:Name="ProducedItemInput"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Margin="24,0,0,0">
+                    <TextBlock Text="الكمية المنتجة" FontSize="13" FontWeight="Bold" Foreground="#6B625D" Margin="0,0,0,8"/>
+                    <TextBox Text="{Binding ProducedQuantity, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource PremiumPosTextBox}" TextAlignment="Center"/>
+                </StackPanel>
+
+                <Button Grid.Column="2" Command="{Binding LoadRecipeCommand}"
+                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                        Margin="24,0,0,0" VerticalAlignment="Bottom" Height="50"
+                        md:ButtonAssist.CornerRadius="10" BorderBrush="#8B5E4C" Foreground="#8B5E4C">
+                    <StackPanel Orientation="Horizontal">
+                        <md:PackIcon Kind="AutoFix" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="تحميل الوصفة" FontWeight="Bold"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </md:Card>
+
+        <!-- MIDDLE: Consumed Materials Entry -->
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Quick Entry Card (The "Invoice Entry Row") -->
+            <md:Card UniformCornerRadius="16" Padding="20" Margin="0,0,0,16" Background="#F3E8DF">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Search Box -->
+                    <StackPanel>
+                        <TextBlock Text="المادة الخام (كود / اسم)" FontSize="12" FontWeight="Bold" Foreground="#8B5E4C" Margin="4,0,0,8"/>
+                        <TextBox x:Name="CodeInput" 
+                                 Text="{Binding ItemSearchCode, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource PremiumPosTextBox}"
+                                 md:HintAssist.Hint="ابحث هنا...">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding ProcessCodeEntryCommand}"/>
+                                <KeyBinding Key="Down" Command="{Binding MoveSuggestionCommand}" CommandParameter="1"/>
+                                <KeyBinding Key="Up" Command="{Binding MoveSuggestionCommand}" CommandParameter="-1"/>
+                            </TextBox.InputBindings>
+                        </TextBox>
+                        
+                        <Popup IsOpen="{Binding IsSuggestionsOpen}" PlacementTarget="{Binding ElementName=CodeInput}" Placement="Bottom" AllowsTransparency="True" StaysOpen="False">
+                            <md:Card UniformCornerRadius="12" Width="500" MaxHeight="300">
+                                <ListBox x:Name="SuggestionsList"
+                                         ItemsSource="{Binding ItemSuggestions}" 
+                                         SelectedItem="{Binding SelectedSuggestion}" 
+                                         BorderThickness="0"
+                                         md:ListBoxAssist.IsToggle="False"
+                                         PreviewMouseLeftButtonUp="SuggestionsList_OnPreviewMouseLeftButtonUp">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="15"/>
+                                                    <TextBlock Text="{Binding Code}" FontSize="12" Foreground="#6B625D"/>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="1" Text="{Binding PurchasePrice, StringFormat='N2'}" VerticalAlignment="Center" Foreground="#8B5E4C" FontWeight="Bold"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                    <ListBox.InputBindings>
+                                        <KeyBinding Key="Enter" Command="{Binding ProcessCodeEntryCommand}"/>
+                                    </ListBox.InputBindings>
+                                </ListBox>
+                            </md:Card>
+                        </Popup>
+                    </StackPanel>
+
+                    <!-- Quantity Input (Appears when item is selected) -->
+                    <StackPanel Grid.Column="1" Margin="20,0,0,0">
+                        <TextBlock Text="الكمية" FontSize="12" FontWeight="Bold" Foreground="#8B5E4C" Margin="4,0,0,8" HorizontalAlignment="Center"/>
+                        <TextBox x:Name="EntryQtyInput"
+                                 Text="{Binding EntryQuantity, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource PremiumPosTextBox}"
+                                 TextAlignment="Center">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding AddPendingLineCommand}"/>
+                            </TextBox.InputBindings>
+                        </TextBox>
+                    </StackPanel>
+
+                    <!-- Add Button -->
+                    <Button Grid.Column="2" Command="{Binding AddPendingLineCommand}"
+                            Style="{StaticResource MaterialDesignRaisedButton}"
+                            Background="#8B5E4C" BorderBrush="#8B5E4C"
+                            Width="60" Height="50" Margin="20,20,0,0"
+                            md:ButtonAssist.CornerRadius="10">
+                        <md:PackIcon Kind="Plus" Width="24" Height="24"/>
+                    </Button>
+                </Grid>
+            </md:Card>
+
+            <!-- Grid -->
+            <md:Card Grid.Row="1" UniformCornerRadius="16" Padding="0">
+                <DataGrid ItemsSource="{Binding Lines}"
+                          AutoGenerateColumns="False" CanUserAddRows="False"
+                          Style="{StaticResource MaterialDesignDataGrid}"
+                          Background="Transparent"
+                          VerticalScrollBarVisibility="Auto">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="50" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="المادة الخام" Binding="{Binding ItemName}" Width="*" IsReadOnly="True"/>
+                        <DataGridTemplateColumn Header="الكمية" Width="120">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged, StringFormat='N2'}" 
+                                             Style="{StaticResource MaterialDesignTextBox}" TextAlignment="Center" FontWeight="Bold"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="الوحدة" Binding="{Binding UnitName}" Width="100" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="التكلفة" Binding="{Binding UnitCost, StringFormat='N2'}" Width="100" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="الإجمالي" Binding="{Binding TotalCost, StringFormat='N2'}" Width="120" IsReadOnly="True"/>
+                        <DataGridTemplateColumn Width="80">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding DataContext.RemoveLineCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource MaterialDesignIconButton}" Foreground="#C62828">
+                                        <md:PackIcon Kind="DeleteOutline" />
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </md:Card>
+        </Grid>
+
+        <!-- BOTTOM: Footer -->
+        <Grid Grid.Row="2" Margin="0,24,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <md:Card UniformCornerRadius="12" Padding="16,8" Background="#8B5E4C" Margin="0,0,24,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="إجمالي التكلفة:" Foreground="#D6C8BE" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                        <TextBlock Text="{Binding TotalConsumedCost, StringFormat='N2'}" Foreground="White" FontSize="24" FontWeight="Black"/>
+                        <TextBlock Text="ج.م" Foreground="#D6C8BE" VerticalAlignment="Bottom" Margin="8,0,0,4"/>
+                    </StackPanel>
+                </md:Card>
+
+                <Border Visibility="{Binding ValidationMessage, Converter={StaticResource NullToVisibilityConverter}}"
+                        Background="#FFF0F0" BorderBrush="#FFC1C1" BorderThickness="1" CornerRadius="12" Padding="16" MaxWidth="600">
+                    <StackPanel Orientation="Horizontal">
+                        <md:PackIcon Kind="AlertCircle" Foreground="#D32F2F" Width="24" Height="24" VerticalAlignment="Center" Margin="0,0,12,0" />
+                        <TextBlock Text="{Binding ValidationMessage}" Foreground="#D32F2F" FontSize="14" FontWeight="Bold" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Command="{Binding SaveAsDraftCommand}"
+                        auth:PermissionAssist.Required="Production.Create"
+                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                        Height="60" Width="150" Margin="0,0,16,0" md:ButtonAssist.CornerRadius="16"
+                        BorderBrush="#8B5E4C" Foreground="#8B5E4C">
+                    <StackPanel Orientation="Horizontal">
+                        <md:PackIcon Kind="ContentSaveOutline" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="حفظ مسودة" FontWeight="Bold"/>
+                    </StackPanel>
+                </Button>
+
+                <Button Command="{Binding PostProductionCommand}"
+                        auth:PermissionAssist.Required="Production.Create"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Background="#8B5E4C" BorderBrush="#8B5E4C"
+                        Height="60" Width="200" md:ButtonAssist.CornerRadius="16">
+                    <StackPanel Orientation="Horizontal">
+                        <md:PackIcon Kind="CheckCircleOutline" Width="24" Height="24" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="ترحيل الإنتاج" FontSize="18" FontWeight="Black"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

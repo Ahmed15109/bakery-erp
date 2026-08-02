@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  
+  <g id="bakery-erp-icon">
+    
+    <!-- 1. LOWER HALF: BREAD LOAF (Primary Golden #F2A900) -->
+    <!-- Formed seamlessly by the lower body of the wheat stalk -->
+    <!-- Base Y=840, Apex Y=490, X=210 to X=814 -->
+    <path fill="#F2A900" d="
+      M 210 790
+      C 210 460, 814 460, 814 790
+      C 814 825, 784 840, 720 840
+      L 304 840
+      C 240 840, 210 825, 210 790
+      Z
+    " />
+    
+    <!-- 2. CENTRAL WHEAT STEM / RACHIS (Accent White #FFFFFF) -->
+    <!-- Extends from top kernel tip (Y=160) down into the Bread Crown (Y=510) -->
+    <rect x="500" y="160" width="24" height="350" rx="12" fill="#FFFFFF" />
+    
+    <!-- 3. UPPER HALF: WHEAT GRAIN KERNELS (Primary Golden #F2A900) -->
+    <!-- Top Central Terminal Grain Kernel -->
+    <path fill="#F2A900" d="
+      M 512 145
+      C 538 185, 542 235, 512 275
+      C 482 235, 486 185, 512 145
+      Z
+    " />
+    
+    <!-- Grain Pair 1 (Top Left & Right) -->
+    <path fill="#F2A900" d="
+      M 488 265
+      C 430 225, 345 185, 305 165
+      C 325 215, 385 265, 460 287
+      Z
+    " />
+    <path fill="#F2A900" d="
+      M 536 265
+      C 594 225, 679 185, 719 165
+      C 699 215, 639 265, 564 287
+      Z
+    " />
+    
+    <!-- Grain Pair 2 (Middle Left & Right) -->
+    <path fill="#F2A900" d="
+      M 488 355
+      C 415 315, 305 270, 255 245
+      C 277 300, 355 355, 444 380
+      Z
+    " />
+    <path fill="#F2A900" d="
+      M 536 355
+      C 609 315, 719 270, 769 245
+      C 747 300, 669 355, 580 380
+      Z
+    " />
+    
+    <!-- Grain Pair 3 (Lower Left & Right - Resting gracefully on Bread Loaf Dome) -->
+    <path fill="#F2A900" d="
+      M 488 445
+      C 400 405, 275 355, 215 330
+      C 240 390, 330 450, 430 475
+      Z
+    " />
+    <path fill="#F2A900" d="
+      M 536 445
+      C 624 405, 749 355, 809 330
+      C 784 390, 694 450, 594 475
+      Z
+    " />
+
+    <!-- 4. ARTISAN BREAD SCORE SLASHES (Accent White #FFFFFF) -->
+    <!-- 3 Slashes angled at -40 deg, echoing the exact pitch of wheat grains -->
+    <rect x="325" y="605" width="24" height="150" rx="12" fill="#FFFFFF" transform="rotate(-40 325 605)" />
+    <rect x="450" y="545" width="24" height="205" rx="12" fill="#FFFFFF" transform="rotate(-40 450 545)" />
+    <rect x="615" y="575" width="24" height="165" rx="12" fill="#FFFFFF" transform="rotate(-40 615 575)" />
+
+  </g>
+</svg>

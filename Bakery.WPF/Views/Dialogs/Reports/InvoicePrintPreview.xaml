@@ -1,0 +1,11 @@
+<Window x:Class="Bakery.WPF.InvoicePrintPreview" 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+        xmlns:loc="clr-namespace:Bakery.Shared.Helpers;assembly=Bakery.Shared"
+        Title="{x:Static loc:Loc.PrintPreview}" Width="520" Height="720" 
+        WindowStartupLocation="CenterOwner"
+        FlowDirection="RightToLeft">
+    <Grid Margin="24">
+        <TextBlock Text="أساسيات طباعة الفاتورة: الإيصال الحراري، تنسيق A4، وخطافات تصدير PDF متوفرة من خلال InvoicePrintDto." TextWrapping="Wrap" FontSize="18"/>
+    </Grid>
+</Window>

@@ -1,0 +1,106 @@
+<UserControl x:Class="Bakery.WPF.Views.ReportsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:loc="clr-namespace:Bakery.Shared.Helpers;assembly=Bakery.Shared"
+             Background="#F8FAFC"
+             FlowDirection="RightToLeft">
+    
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="40">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Header Panel -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,32">
+                <!-- Breadcrumbs -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                    <TextBlock Text="الرئيسية" FontSize="12" Foreground="#8B5E4C" FontWeight="SemiBold" Cursor="Hand"/>
+                    <materialDesign:PackIcon Kind="ChevronLeft" Width="14" Height="14" Foreground="#94A3B8" Margin="6,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="التقارير" FontSize="12" Foreground="#94A3B8" FontWeight="SemiBold"/>
+                </StackPanel>
+
+                <!-- Page Titles -->
+                <TextBlock Text="تقارير النظام" FontSize="36" FontWeight="Black" Foreground="#0F172A"/>
+                <TextBlock Text="اختر أحد الأقسام أدناه لعرض التقارير التفصيلية، تصديرها إلى ملفات Excel/PDF، أو طباعتها مباشرة." 
+                           FontSize="15" Foreground="#475569" Margin="0,8,0,0" LineHeight="22"/>
+            </StackPanel>
+
+            <!-- Report Categories Directory Grid -->
+            <ItemsControl Grid.Row="1" ItemsSource="{Binding ReportCategories}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="2" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Command="{Binding DataContext.GenerateReportCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"
+                                Padding="0" Margin="0,0,24,24" Height="140"
+                                HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="White"/>
+                                    <Setter Property="BorderBrush" Value="#E2E8F0"/>
+                                    <Setter Property="BorderThickness" Value="1"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border CornerRadius="16" 
+                                                        Background="{TemplateBinding Background}" 
+                                                        BorderBrush="{TemplateBinding BorderBrush}" 
+                                                        BorderThickness="{TemplateBinding BorderThickness}">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect BlurRadius="12" Color="#0F172A" Opacity="0.03" ShadowDepth="2" Direction="270"/>
+                                                    </Border.Effect>
+                                                    <Grid>
+                                                        <!-- Right-aligned vertical indicator strip (RTL aware starting point) -->
+                                                        <Border Width="6" HorizontalAlignment="Right" Background="{Binding Color}" CornerRadius="0,16,16,0"/>
+                                                        
+                                                        <Grid Margin="0,0,6,0">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="90"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="60"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            
+                                                            <!-- Icon Circle -->
+                                                            <Border Grid.Column="0" Width="54" Height="54" CornerRadius="27" Background="#F8FAFC" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                                <materialDesign:PackIcon Kind="{Binding IconKind}" Width="28" Height="28" Foreground="{Binding Color}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                            
+                                                            <!-- Content -->
+                                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0">
+                                                                <TextBlock Text="{Binding Name}" FontSize="20" FontWeight="Bold" Foreground="#1E293B"/>
+                                                                <TextBlock Text="عرض وتحليل وطباعة التقارير المحدثة للنظام." FontSize="13" Foreground="#64748B" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                                                            </StackPanel>
+                                                            
+                                                            <!-- Chevron Arrow (Left in RTL) -->
+                                                            <materialDesign:PackIcon Grid.Column="2" Kind="ChevronLeft" Width="22" Height="22" Foreground="#94A3B8" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                        </Grid>
+                                                    </Grid>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#F8FAFC"/>
+                                                        <Setter Property="BorderBrush" Value="#CBD5E1"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsPressed" Value="True">
+                                                        <Setter Property="Background" Value="#F1F5F9"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

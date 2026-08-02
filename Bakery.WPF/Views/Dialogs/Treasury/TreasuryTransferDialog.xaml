@@ -1,0 +1,72 @@
+<Window x:Class="Bakery.WPF.TreasuryTransferDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="تحويل بين الخزن" Height="500" Width="420"
+        WindowStartupLocation="CenterOwner"
+        Background="#F6F3EF"
+        FontFamily="Cairo, Segoe UI"
+        FlowDirection="RightToLeft">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="تفاصيل التحويل" FontSize="24" FontWeight="Bold" Foreground="#2B211D" Margin="0,0,0,20"/>
+
+        <StackPanel Grid.Row="1">
+            <ComboBox materialDesign:HintAssist.Hint="من خزنة" 
+                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                      ItemsSource="{Binding SourceSafes}"
+                      SelectedValue="{Binding SourceSafeId}"
+                      SelectedValuePath="Id"
+                      DisplayMemberPath="DisplayName"
+                      IsEnabled="{Binding CanChangeSource}"
+                      Margin="0,0,0,8"/>
+
+            <StackPanel Orientation="Horizontal" Margin="4,0,0,16">
+                <TextBlock Text="الرصيد المتاح: " Foreground="#6D4C41" FontSize="12"/>
+                <TextBlock Text="{Binding SourceSafeBalance, StringFormat={}{0:N2} ج.م}" FontWeight="Bold" Foreground="#2B211D" FontSize="12"/>
+            </StackPanel>
+
+            <ComboBox materialDesign:HintAssist.Hint="إلى خزنة" 
+                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                      ItemsSource="{Binding DestinationSafes}"
+                      SelectedValue="{Binding DestinationSafeId}"
+                      SelectedValuePath="Id"
+                      DisplayMemberPath="DisplayName"
+                      Margin="0,0,0,16"/>
+
+            <TextBox materialDesign:HintAssist.Hint="المبلغ"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}"
+                     Margin="0,0,0,4"/>
+
+            <TextBlock Text="{Binding BalanceWarning}" 
+                       Foreground="#D32F2F" 
+                       FontSize="11" 
+                       Margin="4,0,0,8"
+                       Visibility="{Binding IsInsufficientFunds, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+            <TextBox materialDesign:HintAssist.Hint="ملاحظات"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
+                     AcceptsReturn="True" Height="80"
+                     VerticalContentAlignment="Top"
+                     Margin="0,0,0,16"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="إلغاء" Style="{StaticResource MaterialDesignFlatButton}" Command="{Binding CancelCommand}" Margin="0,0,8,0"/>
+            <Button Content="تحويل" 
+                    Style="{StaticResource MaterialDesignRaisedButton}" 
+                    Command="{Binding SaveCommand}" 
+                    Width="100" 
+                    Background="#8B5E4C" 
+                    BorderBrush="#8B5E4C"
+                    IsEnabled="{Binding CanSubmit}"/>
+        </StackPanel>
+    </Grid>
+</Window>

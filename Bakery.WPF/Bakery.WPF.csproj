@@ -1,0 +1,70 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>BakeryERP.ico</ApplicationIcon>
+    <!-- Arabic-first application -->
+    <NeutralLanguage>ar-EG</NeutralLanguage>
+    <!-- Retry file operations to handle transient Defender antivirus scan locks (MSB3021) -->
+    <CopyRetryCount>10</CopyRetryCount>
+    <CopyRetryDelayMilliseconds>200</CopyRetryDelayMilliseconds>
+    <!-- Ship the current .NET 8 servicing runtime in self-contained releases. -->
+    <RuntimeFrameworkVersion Condition="'$(SelfContained)' == 'true'">8.0.29</RuntimeFrameworkVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.5" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.29">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+    <!--
+      LiveCharts' WPF MotionCanvas loads these legacy SkiaSharp OpenGL assemblies
+      during type initialization. They remain runtime-required even on the normal
+      chart path. Pin them directly and scope the upstream NU1701 warning
+      to these audited packages only; PresentationDependencyRuntimeTests exercises
+      the actual WPF chart render path.
+    -->
+    <PackageReference Include="OpenTK" Version="3.3.3" NoWarn="NU1701" />
+    <PackageReference Include="OpenTK.GLWpfControl" Version="3.3.1" NoWarn="NU1701" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.4" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="SkiaSharp.HarfBuzz" Version="3.119.4" />
+    <PackageReference Include="SkiaSharp.Views.WPF" Version="3.119.4" NoWarn="NU1701" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bakery.Application\Bakery.Application.csproj" />
+    <ProjectReference Include="..\Bakery.Infrastructure\Bakery.Infrastructure.csproj" />
+    <ProjectReference Include="..\Bakery.Reporting\Bakery.Reporting.csproj" />
+    <ProjectReference Include="..\Bakery.Shared\Bakery.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.defaults.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+
+  <!-- Safe Cleanup target to prevent Microsoft Defender file locks from failing the build -->
+  <Target Name="SafeCleanupTemporaryTargetAssembly" BeforeTargets="CleanupTemporaryTargetAssembly">
+    <Message Text="Safely cleaning up temporary target assemblies (avoiding Defender locks)" Importance="high" />
+    <Delete Files="@(AssemblyForLocalTypeReference)"
+            Condition="Exists('%(Fullpath)')"
+            ContinueOnError="WarnAndContinue" />
+    <ItemGroup>
+      <AssemblyForLocalTypeReference Remove="@(AssemblyForLocalTypeReference)" />
+    </ItemGroup>
+  </Target>
+</Project>

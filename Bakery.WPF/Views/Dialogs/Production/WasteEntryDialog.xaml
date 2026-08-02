@@ -1,0 +1,140 @@
+<Window x:Class="Bakery.WPF.Views.WasteEntryDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:converters="clr-namespace:Bakery.WPF.Converters"
+        Title="تسجيل هالك جديد"
+        Height="610" Width="480"
+        WindowStartupLocation="CenterOwner"
+        Style="{StaticResource MaterialDesignWindow}"
+        FlowDirection="RightToLeft"
+        ResizeMode="NoResize">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <converters:NullToVisibilityConverter x:Key="NullToVis"/>
+    </Window.Resources>
+
+    <Grid Margin="28">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ── Title ── -->
+        <StackPanel Margin="0,0,0,20">
+            <StackPanel Orientation="Horizontal">
+                <md:PackIcon Kind="AlertDecagram" Foreground="#E53E3E" Width="26" Height="26" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <TextBlock Text="تسجيل هالك جديد" FontSize="20" FontWeight="Bold" Foreground="#1A202C" VerticalAlignment="Center"/>
+            </StackPanel>
+            <TextBlock Text="تسجيل الأصناف التالفة وخصمها من المخزون فورًا" FontSize="12" Foreground="#718096" Margin="36,4,0,0"/>
+        </StackPanel>
+
+        <!-- ── Form ── -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+
+                <!-- الصنف -->
+                <TextBlock Text="الصنف *" FontSize="12" FontWeight="SemiBold" Foreground="#4A5568" Margin="0,0,0,6"/>
+                <ComboBox x:Name="ItemComboBox"
+                          ItemsSource="{Binding ActiveItems}"
+                          SelectedItem="{Binding SelectedItem}"
+                          DisplayMemberPath="Name"
+                          IsEditable="True"
+                          IsTextSearchEnabled="True"
+                          TextSearch.TextPath="Name"
+                          Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                          md:HintAssist.Hint="ابحث عن الصنف..."
+                          Margin="0,0,0,16"
+                          SelectionChanged="ItemComboBox_SelectionChanged"/>
+
+                <!-- الوحدة + الرصيد (2 columns) -->
+                <Grid Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="14"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="الوحدة" FontSize="12" FontWeight="SemiBold" Foreground="#4A5568" Margin="0,0,0,6"/>
+                        <Border Background="#F7FAFC" BorderBrush="#CBD5E0" BorderThickness="1" CornerRadius="6" Padding="12,10">
+                            <TextBlock Text="{Binding UnitSymbol}" FontSize="14" Foreground="#2D3748"/>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="الرصيد المتاح" FontSize="12" FontWeight="SemiBold" Foreground="#4A5568" Margin="0,0,0,6"/>
+                        <Border Background="#F0FFF4" BorderBrush="#9AE6B4" BorderThickness="1" CornerRadius="6" Padding="12,10">
+                            <TextBlock Text="{Binding AvailableStock, StringFormat='N2'}" FontSize="14" FontWeight="Bold" Foreground="#276749"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <!-- الكمية التالفة -->
+                <TextBlock Text="الكمية التالفة *" FontSize="12" FontWeight="SemiBold" Foreground="#4A5568" Margin="0,0,0,6"/>
+                <TextBox Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}"
+                         md:HintAssist.Hint="0"
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         FlowDirection="LeftToRight"
+                         HorizontalContentAlignment="Right"
+                         Margin="0,0,0,4"/>
+
+                <!-- Validation message (shows when not null) -->
+                <TextBlock Text="{Binding ValidationMessage}"
+                           Foreground="#E53E3E" FontSize="11" Margin="4,0,0,12"
+                           Visibility="{Binding ValidationMessage, Converter={StaticResource NullToVis}}"/>
+
+                <!-- السبب -->
+                <TextBlock Text="السبب *" FontSize="12" FontWeight="SemiBold" Foreground="#4A5568" Margin="0,0,0,6"/>
+                <ComboBox ItemsSource="{Binding Reasons}"
+                          SelectedItem="{Binding SelectedReason}"
+                          Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                          md:HintAssist.Hint="اختر سبب الهالك"
+                          Margin="0,0,0,16"/>
+
+                <!-- التاريخ (read-only) -->
+                <TextBlock Text="التاريخ" FontSize="12" FontWeight="SemiBold" Foreground="#4A5568" Margin="0,0,0,6"/>
+                <Border Background="#F7FAFC" BorderBrush="#CBD5E0" BorderThickness="1" CornerRadius="6" Padding="12,10" Margin="0,0,0,16">
+                    <TextBlock x:Name="TodayLabel" FontSize="14" Foreground="#718096"/>
+                </Border>
+
+                <!-- ملاحظات -->
+                <TextBlock Text="ملاحظات" FontSize="12" FontWeight="SemiBold" Foreground="#4A5568" Margin="0,0,0,6"/>
+                <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
+                         md:HintAssist.Hint="ملاحظات اختيارية..."
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         AcceptsReturn="True" Height="76" TextWrapping="Wrap"
+                         VerticalScrollBarVisibility="Auto" Margin="0,0,0,4"/>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ── Buttons ── -->
+        <Border Grid.Row="2" Margin="0,16,0,0" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Padding="0,14,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <Button Content="إلغاء" IsCancel="True"
+                        Style="{StaticResource MaterialDesignFlatButton}"
+                        Foreground="#718096" Padding="16,8" Margin="0,0,12,0"/>
+
+                <Button IsDefault="True"
+                        Click="Save_Click"
+                        IsEnabled="{Binding CanSave}"
+                        Padding="20,8">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
+                            <Setter Property="Background" Value="#E53E3E"/>
+                            <Setter Property="BorderBrush" Value="#C53030"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Style>
+                    </Button.Style>
+                    <StackPanel Orientation="Horizontal">
+                        <md:PackIcon Kind="ContentSave" Width="17" Height="17" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="حفظ وتسجيل الهالك" VerticalAlignment="Center" FontWeight="Bold"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

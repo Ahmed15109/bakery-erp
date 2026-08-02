@@ -1,0 +1,112 @@
+<UserControl x:Class="Bakery.WPF.Views.PartyFormDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:loc="clr-namespace:Bakery.Shared.Helpers;assembly=Bakery.Shared"
+             Width="500" Padding="32" Background="White"
+             FlowDirection="RightToLeft">
+    <StackPanel>
+        <TextBlock Text="بيانات الطرف" FontSize="24" FontWeight="Black" Foreground="#2D2422" Margin="0,0,0,8"/>
+        <TextBlock Text="أدخل البيانات الأساسية للعميل أو المورد" FontSize="13" Foreground="#8B7E7A" Margin="0,0,0,24"/>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Name with Validation -->
+            <StackPanel Grid.Column="0" Margin="0,0,10,20">
+                <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" 
+                         md:HintAssist.Hint="الاسم بالكامل *">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsNameValid}" Value="False">
+                                    <Setter Property="BorderBrush" Value="#D32F2F"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsNameValid}" Value="True">
+                                    <Setter Property="BorderBrush" Value="#2E7D32"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+                <TextBlock Text="{Binding NameValidationMessage}" FontSize="10" Margin="4,2,0,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="#6B7280"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsNameValid}" Value="False">
+                                    <Setter Property="Foreground" Value="#D32F2F"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsNameValid}" Value="True">
+                                    <Setter Property="Foreground" Value="#2E7D32"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
+
+            <ComboBox Grid.Column="1" Margin="10,0,0,20" 
+                      ItemsSource="{Binding PartyTypes}" 
+                      SelectedItem="{Binding SelectedType}" 
+                      md:HintAssist.Hint="نوع الطرف"
+                      Style="{StaticResource MaterialDesignOutlinedComboBox}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource EnumToLocConverter}}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </Grid>
+
+        <TextBox Margin="0,0,0,20" 
+                 Text="{Binding Phone}" 
+                 md:HintAssist.Hint="رقم الهاتف"
+                 Style="{StaticResource MaterialDesignOutlinedTextBox}" />
+
+        <TextBox Margin="0,0,0,20" 
+                 Text="{Binding Address}" 
+                 md:HintAssist.Hint="العنوان بالتفصيل"
+                 Style="{StaticResource MaterialDesignOutlinedTextBox}" />
+
+        <TextBox Margin="0,0,0,20" 
+                 Text="{Binding NationalId}" 
+                 md:HintAssist.Hint="الرقم القومي / السجل التجاري"
+                 Style="{StaticResource MaterialDesignOutlinedTextBox}" />
+
+        <TextBox Margin="0,0,0,24" 
+                 Text="{Binding Notes}" 
+                 md:HintAssist.Hint="ملاحظات إضافية"
+                 Height="80" TextWrapping="Wrap" AcceptsReturn="True"
+                 Style="{StaticResource MaterialDesignOutlinedTextBox}" />
+
+        <CheckBox Content="طرف نشط حالياً" IsChecked="{Binding IsActive}" Margin="4,0,0,32"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Style="{StaticResource MaterialDesignFlatButton}" 
+                    Content="إلغاء" Command="{x:Static md:DialogHost.CloseDialogCommand}" 
+                    CommandParameter="{Binding RelativeSource={RelativeSource Self}}"
+                    Margin="0,0,12,0" Foreground="#8B7E7A" />
+            
+            <Button Content="حفظ البيانات" Width="140" Height="44"
+                    md:ButtonAssist.CornerRadius="8"
+                    Command="{x:Static md:DialogHost.CloseDialogCommand}">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsNameValid}" Value="False">
+                                <Setter Property="IsEnabled" Value="False"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+                <Button.CommandParameter>
+                    <System:Boolean xmlns:System="clr-namespace:System;assembly=mscorlib">True</System:Boolean>
+                </Button.CommandParameter>
+            </Button>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

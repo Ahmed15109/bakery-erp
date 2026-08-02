@@ -1,0 +1,60 @@
+<Window x:Class="Bakery.WPF.Views.ReopenWorkingDayDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="إعادة فتح آخر يوم عمل"
+        Width="600" Height="440"
+        MinWidth="540" MinHeight="410"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Background="#F6F3EF"
+        FontFamily="Cairo, Segoe UI"
+        FlowDirection="RightToLeft"
+        ShowInTaskbar="False">
+    <Grid Margin="28">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,18">
+            <md:PackIcon Kind="AlertOctagonOutline" Width="32" Height="32" Foreground="#C62828"/>
+            <TextBlock Text="تأكيد إداري حساس" FontSize="22" FontWeight="Bold"
+                       Foreground="#C62828" Margin="12,0,0,0" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <Border Grid.Row="1" Background="#FFF5F5" BorderBrush="#F5B7B1" BorderThickness="1"
+                CornerRadius="10" Padding="16" Margin="0,0,0,18">
+            <StackPanel>
+                <TextBlock Text="سيتم إعادة فتح يوم العمل التالي وقد تُعكس حركات ترحيل الإغلاق المرتبطة به:"
+                           TextWrapping="Wrap" Foreground="#7F1D1D" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding BusinessDateText}" FontSize="26" FontWeight="Black"
+                           Foreground="#C62828" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <StackPanel Grid.Row="2">
+            <TextBlock Text="اكتب سبباً واضحاً باللغة العربية (إلزامي):"
+                       FontWeight="SemiBold" Foreground="#3E332E" Margin="0,0,0,8"/>
+            <TextBox Text="{Binding Reason, UpdateSourceTrigger=PropertyChanged}"
+                     AcceptsReturn="True" TextWrapping="Wrap" Height="100" MaxLength="500"
+                     VerticalContentAlignment="Top" Padding="12"
+                     md:HintAssist.Hint="سبب إعادة فتح يوم العمل"/>
+        </StackPanel>
+
+        <TextBlock Grid.Row="3" Text="لن يُسمح بإعادة الفتح إذا وُجد يوم أحدث غير مؤهل أو بيانات تشغيلية لاحقة."
+                   Foreground="#6B625D" TextWrapping="Wrap" Margin="0,14,0,0"/>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,20,0,0">
+            <Button Content="إلغاء" Command="{Binding CancelCommand}" Width="110" Height="44"
+                    Style="{StaticResource MaterialDesignOutlinedButton}"/>
+            <Button Content="إعادة فتح آخر يوم عمل" Command="{Binding ConfirmCommand}"
+                    Width="210" Height="44" Margin="12,0,0,0"
+                    Background="#C62828" BorderBrush="#C62828"
+                    Style="{StaticResource MaterialDesignRaisedButton}"/>
+        </StackPanel>
+    </Grid>
+</Window>

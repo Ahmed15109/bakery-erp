@@ -1,0 +1,72 @@
+<Window x:Class="Bakery.WPF.Views.RoleFormDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="{Binding DialogTitle}" Height="720" Width="820" MinHeight="620" MinWidth="700"
+        WindowStartupLocation="CenterOwner" Style="{StaticResource MaterialDesignWindow}"
+        Background="{StaticResource SurfaceBrush}" FlowDirection="RightToLeft">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Margin="0,0,0,18">
+            <TextBlock Text="{Binding DialogTitle}" FontSize="24" FontWeight="Bold" Foreground="#2D2422"/>
+            <TextBlock Text="يتم تطبيق صلاحيات الدور على جميع المستخدمين المرتبطين به فور الحفظ." FontSize="12" Foreground="#8B7E7A"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="3*"/></Grid.ColumnDefinitions>
+            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" md:HintAssist.Hint="اسم الدور"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}" Margin="0,0,8,0"/>
+            <TextBox Grid.Column="1" Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" md:HintAssist.Hint="وصف مختصر"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}" Margin="8,0,0,0"/>
+        </Grid>
+
+        <Border Grid.Row="2" Background="White" CornerRadius="12" Padding="16">
+            <Grid>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="صلاحيات الدور" FontSize="16" FontWeight="Bold" Foreground="#2D2422"/>
+                        <TextBlock Text="الصلاحيات التابعة تحدد صلاحية العرض المطلوبة تلقائياً." FontSize="11" Foreground="#8B7E7A"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Command="{Binding SelectAllCommand}" Content="تحديد الكل" Style="{StaticResource MaterialDesignOutlinedButton}" Height="34" Margin="0,0,8,0"/>
+                        <Button Command="{Binding ClearAllCommand}" Content="إلغاء الكل" Style="{StaticResource MaterialDesignOutlinedButton}" Height="34"/>
+                    </StackPanel>
+                </Grid>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Categories}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Expander Header="{Binding Name}" IsExpanded="True" Margin="0,0,0,8" FontWeight="Bold">
+                                    <ItemsControl ItemsSource="{Binding Permissions}" Margin="8">
+                                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel ItemWidth="235"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                          ToolTip="{Binding Description}" Margin="0,0,12,9" FontWeight="Normal"
+                                                          Style="{StaticResource MaterialDesignCheckBox}"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Expander>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+            <Button Content="إلغاء" IsCancel="True" Style="{StaticResource MaterialDesignFlatButton}" Margin="0,0,10,0"/>
+            <Button Command="{Binding SaveCommand}" Content="حفظ الدور" Width="125"
+                    Style="{StaticResource MaterialDesignRaisedButton}" Background="#8B5E4C" BorderBrush="#8B5E4C"/>
+        </StackPanel>
+    </Grid>
+</Window>

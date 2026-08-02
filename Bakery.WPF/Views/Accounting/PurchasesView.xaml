@@ -1,0 +1,72 @@
+<UserControl x:Class="Bakery.WPF.Views.PurchasesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:loc="clr-namespace:Bakery.Shared.Helpers;assembly=Bakery.Shared"
+             xmlns:auth="clr-namespace:Bakery.WPF.Authorization">
+    <Grid Margin="32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <DockPanel Margin="0,0,0,16">
+            <TextBlock Text="{x:Static loc:Loc.Purchases}" FontSize="32" FontWeight="Bold"/>
+            <Button DockPanel.Dock="Left"
+                    Command="{Binding NewCommand}"
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    Height="52" Padding="24,8"
+                    auth:PermissionAssist.Required="Purchases.Create">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="TruckPlus" Width="20" Height="20" Margin="0,0,8,0"/>
+                    <TextBlock Text="{x:Static loc:Loc.NewPurchase}"/>
+                </StackPanel>
+            </Button>
+        </DockPanel>
+
+        <!-- Invoices grid -->
+        <Border Grid.Row="1" Background="White" CornerRadius="12" BorderBrush="#F3F4F6" BorderThickness="1">
+            <DataGrid ItemsSource="{Binding Invoices}"
+                      SelectedItem="{Binding SelectedInvoice}"
+                      AutoGenerateColumns="False" IsReadOnly="True"
+                      Background="Transparent" BorderThickness="0"
+                      GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F3F4F6"
+                      RowHeight="36" ColumnHeaderHeight="32"
+                      VerticalAlignment="Stretch"
+                      Style="{StaticResource MaterialDesignDataGrid}">
+                <DataGrid.Resources>
+                    <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                        <Setter Property="Background" Value="#F9FAFB"/>
+                        <Setter Property="FontSize" Value="11"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="Padding" Value="12,0"/>
+                    </Style>
+                    <Style x:Key="NumericCellStyle" TargetType="DataGridCell" BasedOn="{StaticResource MaterialDesignDataGridCell}">
+                        <Setter Property="FontFamily" Value="Consolas"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="FlowDirection" Value="LeftToRight"/>
+                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                        <Setter Property="Padding" Value="12,0"/>
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="{x:Static loc:Loc.ColNo}" Binding="{Binding InvoiceNumber}" Width="150">
+                        <DataGridTextColumn.CellStyle>
+                            <Style TargetType="DataGridCell" BasedOn="{StaticResource MaterialDesignDataGridCell}">
+                                <Setter Property="FontFamily" Value="Consolas"/>
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.CellStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="{x:Static loc:Loc.ColDate}" Binding="{Binding Date, StringFormat='yyyy-MM-dd'}" Width="120"/>
+                    <DataGridTextColumn Header="{x:Static loc:Loc.ColSupplier}" Binding="{Binding PartyName}" Width="*"/>
+                    <DataGridTextColumn Header="{x:Static loc:Loc.ColStatus}" Binding="{Binding Status, Converter={StaticResource EnumToLocConverter}}" Width="110"/>
+                    <DataGridTextColumn Header="{x:Static loc:Loc.ColTotal}" Binding="{Binding TotalAmount, StringFormat='N2'}" CellStyle="{StaticResource NumericCellStyle}" MinWidth="110"/>
+                    <DataGridTextColumn Header="{x:Static loc:Loc.ColPaid}" Binding="{Binding PaidAmount, StringFormat='N2'}" CellStyle="{StaticResource NumericCellStyle}" MinWidth="110"/>
+                    <DataGridTextColumn Header="{x:Static loc:Loc.ColRemaining}" Binding="{Binding RemainingAmount, StringFormat='N2'}" CellStyle="{StaticResource NumericCellStyle}" MinWidth="120"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>

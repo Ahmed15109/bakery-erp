@@ -1,0 +1,330 @@
+<UserControl x:Class="Bakery.WPF.Views.ItemsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:loc="clr-namespace:Bakery.Shared.Helpers;assembly=Bakery.Shared"
+             xmlns:conv="clr-namespace:Bakery.WPF.Converters"
+             xmlns:auth="clr-namespace:Bakery.WPF.Authorization"
+             FlowDirection="RightToLeft">
+    
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="Auto"/> <!-- Stats -->
+            <RowDefinition Height="Auto"/> <!-- Filters/Search -->
+            <RowDefinition Height="*"/>    <!-- Grid -->
+        </Grid.RowDefinitions>
+
+        <!-- 1. HEADER SECTION -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,14">
+            <Button DockPanel.Dock="Left" Command="{Binding BackCommand}"
+                    Style="{StaticResource InventoryBackButtonStyle}" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="ArrowRight" Width="18" Height="18" Margin="0,0,6,0"/>
+                    <TextBlock Text="رجوع" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <Button DockPanel.Dock="Right"
+                    Command="{Binding AddCommand}"
+                    auth:PermissionAssist.Required="Products.Add"
+                    Style="{StaticResource InventoryPrimaryButtonStyle}">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Plus" Margin="0,0,6,0" VerticalAlignment="Center" Width="18" Height="18"/>
+                    <TextBlock Text="إضافة صنف" VerticalAlignment="Center" FontWeight="Bold" FontSize="13"/>
+                </StackPanel>
+            </Button>
+
+            <StackPanel VerticalAlignment="Center" Margin="12,0">
+                <TextBlock Text="كتالوج الأصناف" Style="{StaticResource InventoryPageTitleStyle}"/>
+                <TextBlock Text="إدارة المخزون والأسعار والقيم المالية" Style="{StaticResource InventoryPageSubtitleStyle}"/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- 2. STATISTICS CARDS (Softer & Pastel) -->
+        <UniformGrid Grid.Row="1" Columns="5" Margin="0,0,0,14">
+            <materialDesign:Card Margin="0,0,10,0" Padding="12" UniformCornerRadius="10" Background="#FAF9F6" BorderBrush="#F3F4F6" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="إجمالي الأصناف" FontSize="11" Foreground="#9CA3AF" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding TotalItems}" FontSize="22" FontWeight="Black" Foreground="#2B211D" Margin="0,4,0,0"/>
+                </StackPanel>
+            </materialDesign:Card>
+            
+            <materialDesign:Card Margin="0,0,10,0" Padding="12" UniformCornerRadius="10" Background="#FFF5F5" BorderBrush="#FEE2E2" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="نواقص المخزون" FontSize="11" Foreground="#EF4444" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding LowStockCount}" FontSize="22" FontWeight="Black" Foreground="#EF4444" Margin="0,4,0,0"/>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <materialDesign:Card Margin="0,0,10,0" Padding="12" UniformCornerRadius="10" Background="#F0F9FF" BorderBrush="#E0F2FE" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="خامات" FontSize="11" Foreground="#0284C7" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding RawMaterialsCount}" FontSize="22" FontWeight="Black" Foreground="#0284C7" Margin="0,4,0,0"/>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <materialDesign:Card Margin="0,0,10,0" Padding="12" UniformCornerRadius="10" Background="#F0FDF4" BorderBrush="#DCFCE7" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="منتجات" FontSize="11" Foreground="#16A34A" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding FinishedProductsCount}" FontSize="22" FontWeight="Black" Foreground="#16A34A" Margin="0,4,0,0"/>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <materialDesign:Card Padding="12" UniformCornerRadius="10" Background="#FAF7F5" BorderBrush="#F3E8DF" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="قيمة المخزون" FontSize="11" Foreground="#8B5E4C" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding TotalInventoryValue, Converter={StaticResource CurrencyConverter}}" FontSize="18" FontWeight="Black" Foreground="#8B5E4C" Margin="0,4,0,0"/>
+                </StackPanel>
+            </materialDesign:Card>
+        </UniformGrid>
+
+        <!-- 3. SEARCH & FILTERS TOOLBAR (Cleaner Material 3 Feel) -->
+        <Grid Grid.Row="2" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <ListBox Grid.Column="0" 
+                     Style="{StaticResource MaterialDesignChoiceChipPrimaryOutlineListBox}"
+                     SelectedIndex="{Binding SelectedTypeIndex}"
+                     HorizontalAlignment="Left">
+                <ListBox.Resources>
+                    <Style TargetType="ListBoxItem" BasedOn="{StaticResource MaterialDesignChoiceChipPrimaryOutlineListBoxItem}">
+                        <Setter Property="Height" Value="32"/>
+                        <Setter Property="Margin" Value="0,0,8,0"/>
+                        <Setter Property="Padding" Value="12,0"/>
+                    </Style>
+                </ListBox.Resources>
+                <ListBoxItem Content="الكل" />
+                <ListBoxItem Content="خامات" />
+                <ListBoxItem Content="منتجات" />
+                <ListBoxItem Content="وقود" />
+                <ListBoxItem Content="تغليف" />
+            </ListBox>
+
+            <Border Grid.Column="1" CornerRadius="10" Background="#F3F4F6" Padding="8,0" Width="320">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <materialDesign:PackIcon Kind="Magnify" VerticalAlignment="Center" Foreground="#9CA3AF" Width="18" Height="18"/>
+                    <TextBox Grid.Column="1" Margin="8,0"
+                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             materialDesign:HintAssist.Hint="بحث سريع..."
+                             materialDesign:TextFieldAssist.DecorationVisibility="Collapsed"
+                             BorderThickness="0" VerticalAlignment="Center" Height="36" VerticalContentAlignment="Center"
+                             Background="Transparent" FontSize="13"/>
+                    <Button Grid.Column="2" Style="{StaticResource MaterialDesignIconButton}" 
+                            Command="{Binding ClearSearchCommand}"
+                            Visibility="{Binding SearchText, Converter={StaticResource NullToVisibilityConverter}}"
+                            Width="24" Height="24" Foreground="#9CA3AF">
+                        <materialDesign:PackIcon Kind="CloseCircle" Width="16" Height="16"/>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 4. DATA GRID (Softer, Rounded, Virtualized) -->
+        <Border Grid.Row="3" Background="White" CornerRadius="10" BorderBrush="#EEE9E6" BorderThickness="1">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="25" Color="Black" Opacity="0.02" ShadowDepth="2"/>
+            </Border.Effect>
+            
+            <DataGrid ItemsSource="{Binding Items}" 
+                      SelectedItem="{Binding SelectedItem}"
+                      AutoGenerateColumns="False" 
+                      IsReadOnly="True"
+                      SelectionMode="Single"
+                      Background="Transparent" 
+                      BorderThickness="0"
+                      GridLinesVisibility="Horizontal"
+                      VirtualizingPanel.IsVirtualizing="True"
+                      VirtualizingPanel.VirtualizationMode="Recycling"
+                      VerticalAlignment="Stretch"
+                      Style="{StaticResource InventoryDataGridStyle}">
+
+                <DataGrid.Columns>
+                    <!-- Item Identity -->
+                    <DataGridTemplateColumn Header="الصنف" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="16,0">
+                                    <Border Width="36" Height="36" CornerRadius="8" Background="#F3E8DF" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Name, Converter={StaticResource StringToInitialConverter}}" 
+                                                   VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                                   FontWeight="Bold" Foreground="#8B5E4C" FontSize="14"/>
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center" Margin="12,0,0,0">
+                                        <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="#111827" FontSize="13"/>
+                                        <TextBlock Text="{Binding Code}" FontSize="10" Foreground="#9CA3AF" Margin="0,1,0,0"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTextColumn Header="الباركود" Binding="{Binding Barcode}" MinWidth="130" FontSize="11">
+                        <DataGridTextColumn.CellStyle>
+                            <Style TargetType="DataGridCell" BasedOn="{StaticResource MaterialDesignDataGridCell}">
+                                <Setter Property="Padding" Value="12,0"/>
+                                <Setter Property="Foreground" Value="#6B7280"/>
+                                <Setter Property="FontFamily" Value="Consolas"/>
+                                <Setter Property="FlowDirection" Value="LeftToRight"/>
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.CellStyle>
+                    </DataGridTextColumn>
+
+                    <!-- Type Badge (Smaller) -->
+                    <DataGridTemplateColumn Header="التصنيف" Width="110">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border Padding="6,2" CornerRadius="4" HorizontalAlignment="Left" Margin="16,0">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#F3F4F6"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Type}" Value="RawMaterial">
+                                                    <Setter Property="Background" Value="#E0F2FE"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Type}" Value="FinishedProduct">
+                                                    <Setter Property="Background" Value="#DCFCE7"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Type}" Value="Fuel">
+                                                    <Setter Property="Background" Value="#FEF3C7"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{Binding Type, Converter={StaticResource EnumToLocConverter}}" FontSize="10" FontWeight="Bold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="#4B5563"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Type}" Value="RawMaterial">
+                                                        <Setter Property="Foreground" Value="#0369A1"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Type}" Value="FinishedProduct">
+                                                        <Setter Property="Foreground" Value="#15803D"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Type}" Value="Fuel">
+                                                        <Setter Property="Foreground" Value="#B45309"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <!-- Stock Status (Cleaner) -->
+                    <DataGridTemplateColumn Header="المخزون" MinWidth="140">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="12,0" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" FlowDirection="LeftToRight" HorizontalAlignment="Center">
+                                        <TextBlock Text="{Binding CurrentStock, StringFormat='N2'}" 
+                                                   FontWeight="SemiBold" FontSize="13" 
+                                                   FontFamily="Consolas" Foreground="#111827"/>
+                                        <TextBlock Text="{Binding BaseUnit}" FontSize="10" 
+                                                   VerticalAlignment="Bottom" Margin="4,0,0,1" 
+                                                   Foreground="#9CA3AF" FontWeight="Normal"/>
+                                    </StackPanel>
+                                    <ProgressBar Value="{Binding CurrentStock}" Maximum="{Binding MinStockLevel, TargetNullValue=100}" 
+                                                 Height="2" Margin="0,2,0,0"
+                                                 Background="#F3F4F6">
+                                        <ProgressBar.Style>
+                                            <Style TargetType="ProgressBar" BasedOn="{StaticResource MaterialDesignLinearProgressBar}">
+                                                <Setter Property="Foreground" Value="#22C55E"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding CurrentStock}" Value="0">
+                                                        <Setter Property="Foreground" Value="#EF4444"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ProgressBar.Style>
+                                    </ProgressBar>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Header="الحالة" Width="90">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border Padding="6,2" CornerRadius="10" HorizontalAlignment="Center">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#FEF2F2"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                    <Setter Property="Background" Value="#F0FDF4"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{Binding IsActive, Converter={StaticResource BooleanToStatusConverter}}" FontSize="10" FontWeight="Bold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="#991B1B"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                        <Setter Property="Foreground" Value="#166534"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <!-- Professional Action Column -->
+                    <DataGridTemplateColumn Header="الإجراءات" Width="140">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Button Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                            auth:PermissionAssist.Required="Products.Edit"
+                                            CommandParameter="{Binding}" 
+                                            Style="{StaticResource MaterialDesignIconButton}" 
+                                            Width="28" Height="28" Padding="0"
+                                            ToolTip="تعديل البيانات">
+                                        <materialDesign:PackIcon Kind="PencilOutline" Width="18" Height="18" Foreground="#78909C"/>
+                                    </Button>
+                                    
+                                    <Button Command="{Binding DataContext.ToggleActiveCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                            auth:PermissionAssist.Required="Products.Edit"
+                                            CommandParameter="{Binding}" 
+                                            Style="{StaticResource MaterialDesignIconButton}" 
+                                            Width="28" Height="28" Padding="0"
+                                            ToolTip="تفعيل / تعطيل">
+                                        <materialDesign:PackIcon Kind="{Binding IsActive, Converter={StaticResource BooleanToActiveIconConverter}}" 
+                                                                 Width="18" Height="18" Foreground="#78909C"/>
+                                    </Button>
+                                    
+                                    <Button Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                            auth:PermissionAssist.Required="Products.Delete"
+                                            CommandParameter="{Binding}" 
+                                            Style="{StaticResource MaterialDesignIconButton}" 
+                                            Width="28" Height="28" Padding="0"
+                                            ToolTip="حذف نهائي"
+                                            Foreground="#EF5350">
+                                        <materialDesign:PackIcon Kind="DeleteOutline" Width="18" Height="18"/>
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,541 @@
+<UserControl x:Class="Bakery.WPF.Views.InvoiceWorkspaceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:loc="clr-namespace:Bakery.Shared.Helpers;assembly=Bakery.Shared">
+    <UserControl.InputBindings>
+        <KeyBinding Key="F2" Command="{Binding SaveCommand}"/>
+        <KeyBinding Key="F4" Command="{Binding NewInvoiceCommand}"/>
+    </UserControl.InputBindings>
+
+    <UserControl.Resources>
+        <!-- Premium POS Label Style -->
+        <Style x:Key="PosEntryLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#6B625D"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <!-- Premium POS TextBox Style with Focus UX -->
+        <Style x:Key="PremiumPosTextBox" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Background" Value="#F9F7F5"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="#E8DED7"/>
+            <Setter Property="materialDesign:TextFieldAssist.DecorationVisibility" Value="Collapsed"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="materialDesign:TextFieldAssist.TextFieldCornerRadius" Value="10"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <ScaleTransform CenterX="50" CenterY="20"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="10"/>
+                </Style>
+            </Style.Resources>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#8B5E4C"/>
+                    <Setter Property="Background" Value="White"/>
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1.02" Duration="0:0:0.15"/>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1.02" Duration="0:0:0.15"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1.0" Duration="0:0:0.15"/>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1.0" Duration="0:0:0.15"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid Background="#F6F3EF" FlowDirection="RightToLeft">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="380" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border Background="White" CornerRadius="16" Padding="24" Margin="0,0,0,24">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="15" Color="Black" Opacity="0.05" ShadowDepth="2"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <RadioButton IsChecked="{Binding IsSale}" Content="فاتورة بيع" IsEnabled="{Binding CanChangeMode}" Style="{StaticResource MaterialDesignTabRadioButton}" Margin="0,0,16,0"/>
+                        <RadioButton IsChecked="{Binding IsSale, Converter={StaticResource InverseBooleanConverter}}" IsEnabled="{Binding CanChangeMode}" Content="فاتورة شراء" Style="{StaticResource MaterialDesignTabRadioButton}"/>
+                        <Border Margin="16,0,0,0" Padding="12,4" CornerRadius="8" Background="#E8DED7" Visibility="{Binding InvoiceStatusDisplay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding InvoiceStatusDisplay}" FontWeight="Bold" Foreground="#8B5E4C" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding InvoiceNumberDisplay}" Margin="12,0,0,0" FontWeight="Bold" Foreground="#8B5E4C" VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding InvoiceDateDisplay}" Margin="12,0,0,0" Foreground="#8B5E4C" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <materialDesign:PackIcon Kind="Account" VerticalAlignment="Center" Margin="0,0,12,0" Foreground="#8B5E4C"/>
+                        
+                        <!-- Read-Only Display (for Posted/Cancelled) -->
+                        <TextBlock Width="300" Text="{Binding ReadOnlyPartyName}" FontWeight="Bold" FontSize="16" Foreground="#2F2A27" VerticalAlignment="Center" Visibility="{Binding IsReadOnly, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                        <!-- Editable Display (for New/Draft) -->
+                        <StackPanel Orientation="Vertical" Visibility="{Binding CanEditParty, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="{Binding PartyWarning}" Foreground="#C62828" FontWeight="Bold" FontSize="12" Margin="0,0,0,4" TextWrapping="Wrap" Visibility="{Binding HasInactiveParty, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            <ComboBox Width="300" ItemsSource="{Binding Parties}"
+                                      SelectedItem="{Binding SelectedParty}"
+                                      DisplayMemberPath="Name"
+                                      materialDesign:HintAssist.Hint="{x:Static loc:Loc.HintSelectParty}"
+                                      Style="{StaticResource MaterialDesignOutlinedComboBox}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1" Background="White" CornerRadius="16" Padding="0">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="15" Color="Black" Opacity="0.05" ShadowDepth="2"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- NEW QUICK ENTRY BAR -->
+                    <Border Background="White" CornerRadius="16" Padding="20" Margin="12,12,12,24" Grid.Row="0" IsEnabled="{Binding IsReadOnly, Converter={StaticResource InverseBooleanConverter}}">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="20" Color="Black" Opacity="0.08" ShadowDepth="4"/>
+                        </Border.Effect>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="280" /> <!-- Search -->
+                                <ColumnDefinition Width="*" />   <!-- Info Card -->
+                                <ColumnDefinition Width="100" /> <!-- Unit -->
+                                <ColumnDefinition Width="110" /> <!-- Qty -->
+                                <ColumnDefinition Width="120" /> <!-- Price -->
+                                <ColumnDefinition Width="100" /> <!-- Add Button -->
+                            </Grid.ColumnDefinitions>
+
+                            <!-- 1. SEARCH SECTION -->
+                            <StackPanel Margin="0,0,16,0">
+                                <TextBlock Text="بحث الصنف" Style="{StaticResource PosEntryLabel}"/>
+                                <TextBox x:Name="CodeInput"
+                                         Text="{Binding ItemSearchCode, UpdateSourceTrigger=PropertyChanged}"
+                                         materialDesign:HintAssist.Hint="ابحث بالكود / الاسم"
+                                         Style="{StaticResource PremiumPosTextBox}">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter" Command="{Binding AcceptSelectedProductCommand}"/>
+                                        <KeyBinding Key="Tab" Command="{Binding AcceptSelectedProductCommand}"/>
+                                        <KeyBinding Key="Down" Command="{Binding MoveSuggestionCommand}" CommandParameter="1"/>
+                                        <KeyBinding Key="Up" Command="{Binding MoveSuggestionCommand}" CommandParameter="-1"/>
+                                    </TextBox.InputBindings>
+                                </TextBox>
+
+                                <Popup PlacementTarget="{Binding ElementName=CodeInput}"
+                                       Placement="Bottom"
+                                       IsOpen="{Binding IsSuggestionsOpen}"
+                                       AllowsTransparency="True"
+                                       Focusable="False"
+                                       StaysOpen="True"
+                                       Width="520">
+                                    <Border Background="White" BorderBrush="#E8DED7" BorderThickness="1" CornerRadius="12" Padding="4">
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="25" Color="Black" Opacity="0.12" ShadowDepth="8"/>
+                                        </Border.Effect>
+                                        <ListBox ItemsSource="{Binding ProductSuggestions}"
+                                                 SelectedItem="{Binding SelectedSuggestion}"
+                                                 MaxHeight="350"
+                                                 BorderThickness="0"
+                                                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                            <ListBox.ItemContainerStyle>
+                                                <Style TargetType="ListBoxItem">
+                                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                                    <Setter Property="Padding" Value="0"/>
+                                                    <Setter Property="Margin" Value="2"/>
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsSelected" Value="True">
+                                                            <Setter Property="Background" Value="#F5F0ED"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ListBox.ItemContainerStyle>
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid Margin="12,10">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="90"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Text="{Binding Code}" FontWeight="Bold" Foreground="#8B5E4C"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding Name}" Foreground="#2F2A27" FontSize="15"/>
+                                                        <Border Grid.Column="2" CornerRadius="6" Padding="8,4" HorizontalAlignment="Right">
+                                                            <Border.Style>
+                                                                <Style TargetType="Border">
+                                                                    <Setter Property="Background" Value="#E8F5E9"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding StockStatus}" Value="نفذ المخزون">
+                                                                            <Setter Property="Background" Value="#FDE2E2"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Border.Style>
+                                                            <TextBlock Text="{Binding StockStatus}" FontSize="11" FontWeight="Bold">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Foreground" Value="#2E7D32"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}}" Value="نفذ المخزون">
+                                                                                <Setter Property="Foreground" Value="#C62828"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                        </Border>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </Border>
+                                </Popup>
+                            </StackPanel>
+
+                            <!-- 2. SELECTED ITEM AREA -->
+                            <Border Grid.Column="1" Background="#FDFBFA" CornerRadius="12" Padding="16,8" Margin="0,0,16,0" BorderBrush="#F3E8DF" BorderThickness="1">
+                                <Grid VerticalAlignment="Center">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="{Binding PendingItemName}" FontSize="22" FontWeight="Black" Foreground="#2F2A27" TextTrimming="CharacterEllipsis"/>
+                                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,4,0,0">
+                                        <materialDesign:PackIcon Kind="Barcode" Foreground="#8B5E4C" VerticalAlignment="Center" Margin="0,0,4,0" Width="14" Height="14"/>
+                                        <TextBlock Text="{Binding ItemSearchCode}" Foreground="#8B5E4C" FontWeight="SemiBold" FontSize="13" Margin="0,0,16,0"/>
+                                        
+                                        <Border CornerRadius="4" Padding="6,2">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="#E8F5E9"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding PendingStockStatus}" Value="نفذ المخزون">
+                                                            <Setter Property="Background" Value="#FDE2E2"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="{Binding PendingStockStatus}" FontSize="11" FontWeight="Bold">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="#2E7D32"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}}" Value="نفذ المخزون">
+                                                                <Setter Property="Foreground" Value="#C62828"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- 3. UNIT SECTION -->
+                            <StackPanel Grid.Column="2" Margin="0,0,16,0" VerticalAlignment="Center">
+                                <TextBlock Text="الوحدة" Style="{StaticResource PosEntryLabel}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding PendingUnit}" Foreground="#2F2A27" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- 4. QUANTITY SECTION -->
+                            <StackPanel Grid.Column="3" Margin="0,0,16,0">
+                                <TextBlock Text="الكمية" Style="{StaticResource PosEntryLabel}" HorizontalAlignment="Center"/>
+                                <TextBox x:Name="QtyInput"
+                                         Text="{Binding EntryQuantity, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource FlexibleDecimalConverter}}"
+                                         TextAlignment="Center"
+                                         Style="{StaticResource PremiumPosTextBox}">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter" Command="{Binding FocusPriceCommand}"/>
+                                        <KeyBinding Key="Tab" Command="{Binding FocusPriceCommand}"/>
+                                    </TextBox.InputBindings>
+                                </TextBox>
+                            </StackPanel>
+
+                            <!-- 5. PRICE SECTION -->
+                            <StackPanel Grid.Column="4" Margin="0,0,16,0">
+                                <TextBlock Text="السعر" Style="{StaticResource PosEntryLabel}" HorizontalAlignment="Center"/>
+                                <TextBox x:Name="PriceInput"
+                                         Text="{Binding EntryPrice, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource FlexibleDecimalConverter}}"
+                                         TextAlignment="Center"
+                                         Style="{StaticResource PremiumPosTextBox}">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter" Command="{Binding AddPendingLineCommand}"/>
+                                        <KeyBinding Key="Tab" Command="{Binding AddPendingLineCommand}"/>
+                                    </TextBox.InputBindings>
+                                </TextBox>
+                            </StackPanel>
+
+                            <!-- 6. ADD BUTTON SECTION -->
+                            <Button Grid.Column="5" 
+                                    Command="{Binding AddPendingLineCommand}"
+                                    Style="{StaticResource MaterialDesignRaisedButton}"
+                                    Background="#8B5E4C" BorderBrush="#8B5E4C"
+                                    Height="54" Width="90"
+                                    materialDesign:ButtonAssist.CornerRadius="12">
+                                <StackPanel>
+                                    <materialDesign:PackIcon Kind="Plus" HorizontalAlignment="Center" Width="20" Height="20"/>
+                                    <TextBlock Text="إضافة" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                                <Button.Effect>
+                                    <DropShadowEffect BlurRadius="12" Color="#8B5E4C" Opacity="0.3" ShadowDepth="4"/>
+                                </Button.Effect>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <!-- REDESIGNED INVOICE GRID -->
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding Lines}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              Background="Transparent" 
+                              BorderThickness="0"
+                              RowHeight="50"
+                              FontSize="14"
+                              AlternatingRowBackground="#F9F7F5"
+                              GridLinesVisibility="None"
+                              HeadersVisibility="Column"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto"
+                              Style="{StaticResource MaterialDesignDataGrid}">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                                <Setter Property="Background" Value="#F3E8DF"/>
+                                <Setter Property="Foreground" Value="#2F2A27"/>
+                                <Setter Property="Padding" Value="16,12"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                <Setter Property="BorderBrush" Value="#E8DED7"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="#" Binding="{Binding Index}" IsReadOnly="True" Width="50">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="Foreground" Value="#8B5E4C"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            
+                            <DataGridTextColumn Header="كود الصنف" Binding="{Binding ItemId}" IsReadOnly="True" Width="100"/>
+                            <DataGridTextColumn Header="اسم الصنف" Binding="{Binding ItemName}" IsReadOnly="True" Width="*">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Padding" Value="12,0"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            
+                            <DataGridTemplateColumn Header="الكمية" Width="120">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#FDFBFA" CornerRadius="8" BorderBrush="#F3E8DF" BorderThickness="1" Margin="4">
+                                            <TextBox Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource FlexibleDecimalConverter}}"
+                                                     TextAlignment="Center" FontWeight="Bold" Foreground="#2F2A27"
+                                                     BorderThickness="0"
+                                                     Style="{StaticResource MaterialDesignTextBox}"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            
+                            <DataGridTextColumn Header="السعر" Binding="{Binding UnitPrice, StringFormat='N2'}" Width="120">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            
+                            <DataGridTextColumn Header="الإجمالي" Binding="{Binding Total, StringFormat='N2', Mode=OneWay}" IsReadOnly="True" Width="150">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="Padding" Value="0,0,16,0"/>
+                                        <Setter Property="FontWeight" Value="Black"/>
+                                        <Setter Property="Foreground" Value="#8B5E4C"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            
+                            <DataGridTemplateColumn Width="70">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding DataContext.RemoveLineCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}"
+                                                IsEnabled="{Binding DataContext.IsReadOnly, RelativeSource={RelativeSource AncestorType=DataGrid}, Converter={StaticResource InverseBooleanConverter}}"
+                                                Style="{StaticResource MaterialDesignIconButton}" 
+                                                Foreground="#C62828" 
+                                                ToolTip="حذف السطر"
+                                                Width="32" Height="32">
+                                            <materialDesign:PackIcon Kind="DeleteOutline" Width="20" Height="20"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Border Grid.Column="1" Background="White" BorderBrush="#E8DED7" BorderThickness="1,0,0,0">
+            <Grid Margin="24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="ملخص العملية" FontSize="20" FontWeight="Black" Foreground="#2F2A27" Margin="0,0,0,24"/>
+
+                        <!-- NET TOTAL DOMINANT CARD -->
+                        <materialDesign:Card UniformCornerRadius="16" Padding="24" Margin="0,0,0,16" Background="#8B5E4C">
+                            <StackPanel>
+                                <TextBlock Text="إجمالي الفاتورة" Foreground="#D6C8BE" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding Total, StringFormat='N2'}" Foreground="White" FontSize="48" FontWeight="Black" HorizontalAlignment="Center" Margin="0,4"/>
+                                <TextBlock Text="جنيه مصري" Foreground="#D6C8BE" FontSize="12" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <materialDesign:Card.Effect>
+                                <DropShadowEffect BlurRadius="15" Color="#8B5E4C" Opacity="0.4" ShadowDepth="4"/>
+                            </materialDesign:Card.Effect>
+                        </materialDesign:Card>
+
+                        <!-- Payment Info Card -->
+                        <materialDesign:Card UniformCornerRadius="16" Padding="20" Margin="0,0,0,16" Background="#FDF2F2">
+                            <StackPanel>
+                                <TextBlock Text="المبلغ المدفوع" Foreground="#991B1B" FontSize="13" FontWeight="Bold" Margin="0,0,0,8"/>
+                                <TextBox Text="{Binding PaidAmount, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource FlexibleDecimalConverter}}"
+                                         IsEnabled="{Binding IsReadOnly, Converter={StaticResource InverseBooleanConverter}}"
+                                         FontSize="28" FontWeight="Black" Foreground="#991B1B"
+                                         materialDesign:TextFieldAssist.DecorationVisibility="Collapsed"
+                                         BorderThickness="0" Background="Transparent"
+                                         TextAlignment="Center"
+                                         Style="{StaticResource MaterialDesignTextBox}"/>
+                                
+                                <Border Background="White" CornerRadius="8" Padding="12,8" Margin="0,16,0,0">
+                                    <Grid>
+                                        <TextBlock Text="المتبقي" Foreground="#6B625D" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Remaining, StringFormat='N2'}" Foreground="#2F2A27" FontWeight="Black" FontSize="18" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </materialDesign:Card>
+
+                        <!-- Notes -->
+                        <TextBlock Text="ملاحظات" Foreground="#6B625D" Margin="4,0,0,8" FontSize="13" FontWeight="SemiBold"/>
+                        <TextBox Text="{Binding Notes}"
+                                 IsEnabled="{Binding IsReadOnly, Converter={StaticResource InverseBooleanConverter}}"
+                                 materialDesign:HintAssist.Hint="سجل أي ملاحظات هنا..."
+                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                 AcceptsReturn="True" Height="100" VerticalContentAlignment="Top"
+                                 materialDesign:TextFieldAssist.TextFieldCornerRadius="12"/>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- STICKY ACTION BUTTONS -->
+                <StackPanel Grid.Row="1" Margin="0,24,0,0">
+                    <!-- Cancel Invoice Button -->
+                    <Button Command="{Binding CancelInvoiceCommand}"
+                            Visibility="{Binding CanCancelInvoice, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Style="{StaticResource MaterialDesignRaisedButton}"
+                            Background="#D32F2F" BorderBrush="#D32F2F"
+                            Height="60" Margin="0,0,0,12"
+                            materialDesign:ButtonAssist.CornerRadius="16">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Cancel" Margin="0,0,12,0" VerticalAlignment="Center" Width="24" Height="24"/>
+                            <TextBlock Text="إلغاء الفاتورة / مرتجع كامل" FontSize="16" FontWeight="Black" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <Button.Effect>
+                            <DropShadowEffect BlurRadius="15" Color="#D32F2F" Opacity="0.3" ShadowDepth="4"/>
+                        </Button.Effect>
+                    </Button>
+
+                    <Button Command="{Binding SaveCommand}"
+                            IsEnabled="{Binding IsReadOnly, Converter={StaticResource InverseBooleanConverter}}"
+                            Style="{StaticResource MaterialDesignRaisedButton}"
+                            Background="#8B5E4C" BorderBrush="#8B5E4C"
+                            Height="70" 
+                            materialDesign:ButtonAssist.CornerRadius="16">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="ContentSaveCheck" Margin="0,0,12,0" VerticalAlignment="Center" Width="28" Height="28"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="حفظ وترحيل الفاتورة" FontSize="18" FontWeight="Black"/>
+                                <TextBlock Text="اضغط F2 للحفظ السريع" FontSize="11" Opacity="0.8" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Button.Effect>
+                            <DropShadowEffect BlurRadius="20" Color="#8B5E4C" Opacity="0.3" ShadowDepth="6"/>
+                        </Button.Effect>
+                    </Button>
+
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button Command="{Binding NewInvoiceCommand}"
+                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Margin="0,0,6,0" Height="50"
+                                materialDesign:ButtonAssist.CornerRadius="12">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Plus" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="جديدة (F4)" VerticalAlignment="Center" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="1" 
+                                Command="{Binding PrintInvoiceCommand}"
+                                Style="{StaticResource MaterialDesignOutlinedButton}" 
+                                Margin="6,0,0,0" Height="50"
+                                materialDesign:ButtonAssist.CornerRadius="12">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="PrinterOutline" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="طباعة" VerticalAlignment="Center" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

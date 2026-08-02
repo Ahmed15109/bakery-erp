@@ -1,0 +1,225 @@
+<UserControl x:Class="Bakery.WPF.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:auth="clr-namespace:Bakery.WPF.Authorization"
+             Background="#F6F3EF"
+             FlowDirection="RightToLeft">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="32">
+            <StackPanel MaxWidth="800" HorizontalAlignment="Center">
+                
+                <!-- Header -->
+                <md:Card UniformCornerRadius="16" Padding="32" Margin="0,0,0,24">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="60" Height="60" CornerRadius="30" Background="#F7F1EC">
+                            <md:PackIcon Kind="CogOutline" Width="30" Height="30" Foreground="#8B5E4C" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="24,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="إعدادات النظام" FontSize="24" FontWeight="Black" Foreground="#2F2A27"/>
+                            <TextBlock Text="تحكم في خصائص وخيارات البرنامج" FontSize="14" Foreground="#6B625D"/>
+                        </StackPanel>
+                    </StackPanel>
+                </md:Card>
+ 
+                <!-- Working Day administration -->
+                <md:Card x:Name="WorkingDaySection" UniformCornerRadius="16" Padding="32" Background="White" Margin="0,0,0,24">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
+                            <md:PackIcon Kind="CalendarClockOutline" Foreground="#8B5E4C" Width="28" Height="28" VerticalAlignment="Center"/>
+                            <TextBlock Text="إدارة يوم العمل" FontSize="20" FontWeight="Bold" Foreground="#2F2A27"
+                                       Margin="12,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <TextBlock Text="يوم العمل الحالي" FontSize="15" FontWeight="Bold" Foreground="#6D4C41" Margin="0,0,0,10"/>
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Margin="0,0,8,0" Padding="16" CornerRadius="10" Background="#F7F3EF">
+                                <StackPanel>
+                                    <TextBlock Text="حالة اليوم الحالي" Foreground="#6B625D" FontSize="12"/>
+                                    <TextBlock x:Name="CurrentWorkingDayStatusText" Text="{Binding WorkingDayStatusText}" Foreground="#2F2A27" FontWeight="Bold" FontSize="17" Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="1" Margin="8,0,0,0" Padding="16" CornerRadius="10" Background="#F7F3EF">
+                                <StackPanel>
+                                    <TextBlock Text="تاريخ اليوم الحالي" Foreground="#6B625D" FontSize="12"/>
+                                    <TextBlock x:Name="CurrentWorkingDayDateText" Text="{Binding WorkingDayBusinessDateText}" Foreground="#2F2A27" FontWeight="Bold" FontSize="17" Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <TextBlock Text="آخر يوم عمل مغلق" FontSize="15" FontWeight="Bold" Foreground="#6D4C41" Margin="0,0,0,10"/>
+                        <Grid Margin="0,0,0,22">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0" Grid.Column="0" Margin="0,0,8,8" Padding="16" CornerRadius="10" Background="#F7F3EF">
+                                <StackPanel>
+                                    <TextBlock Text="تاريخ آخر يوم مغلق" Foreground="#6B625D" FontSize="12"/>
+                                    <TextBlock x:Name="LastClosedWorkingDayDateText" Text="{Binding LastClosedBusinessDateText}" Foreground="#2F2A27" FontWeight="Bold" FontSize="17" Margin="0,5,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="1" Margin="8,0,0,8" Padding="16" CornerRadius="10" Background="#F7F3EF">
+                                <StackPanel>
+                                    <TextBlock Text="أغلقه المستخدم" Foreground="#6B625D" FontSize="12"/>
+                                    <TextBlock x:Name="LastClosedWorkingDayUserText" Text="{Binding WorkingDayClosedByText}" Foreground="#2F2A27" FontWeight="SemiBold" Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="0,8,0,0" Padding="16" CornerRadius="10" Background="#F7F3EF">
+                                <StackPanel>
+                                    <TextBlock Text="وقت إغلاق آخر يوم" Foreground="#6B625D" FontSize="12"/>
+                                    <TextBlock x:Name="LastClosedWorkingDayTimeText" Text="{Binding WorkingDayClosedAtText}" Foreground="#2F2A27" FontWeight="SemiBold" Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Border Background="#FFF8E1" BorderBrush="#F5D98E" BorderThickness="1" CornerRadius="10" Padding="16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="حالة إعادة الفتح" FontWeight="Bold" Foreground="#6D4C41"/>
+                                    <TextBlock x:Name="ReopenEligibilityStatusText" Text="{Binding ReopenEligibilityText}"
+                                               Foreground="#6B625D" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                </StackPanel>
+                                <Button x:Name="ReopenWorkingDayButton" Grid.Column="1" Content="{Binding ReopenButtonText}"
+                                        Command="{Binding ReopenWorkingDayCommand}"
+                                        Visibility="{Binding CanUseReopenPermission, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        auth:PermissionAssist.Required="WorkingDay.Reopen"
+                                        Style="{StaticResource MaterialDesignRaisedButton}"
+                                        Background="#8B5E4C" BorderBrush="#8B5E4C"
+                                        Height="46" Margin="18,0,0,0"
+                                        md:ButtonAssist.CornerRadius="10"/>
+                            </Grid>
+                        </Border>
+
+                        <StackPanel Margin="0,16,0,0"
+                                    Visibility="{Binding HasReopenBlockers, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock FontWeight="Bold" Foreground="#6D4C41" Margin="0,0,0,10">
+                                <Run Text="العمليات التي تمنع إعادة الفتح: "/>
+                                <Run Text="{Binding ReopenBlockerCount}"/>
+                            </TextBlock>
+                            <ItemsControl ItemsSource="{Binding ReopenBlockers}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#FFFCF8" BorderBrush="#E8D8C9" BorderThickness="1"
+                                                CornerRadius="10" Padding="14" Margin="0,0,0,10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding TypeLabel}" FontWeight="Bold" Foreground="#2F2A27"/>
+                                                        <TextBlock Text=" — " Foreground="#8B817A"/>
+                                                        <TextBlock Text="{Binding RecordNumber}" FontWeight="Bold" Foreground="#8B5E4C"/>
+                                                    </StackPanel>
+                                                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Foreground="#4E4742" Margin="0,5,0,0"/>
+                                                    <WrapPanel Margin="0,7,0,0">
+                                                        <TextBlock Text="الحالة: " Foreground="#766B64"/>
+                                                        <TextBlock Text="{Binding Status}" FontWeight="SemiBold" Margin="0,0,16,0"/>
+                                                        <TextBlock Text="المستخدم: " Foreground="#766B64"/>
+                                                        <TextBlock Text="{Binding User}" Margin="0,0,16,0"/>
+                                                        <TextBlock Text="الوقت: " Foreground="#766B64"/>
+                                                        <TextBlock Text="{Binding Timestamp, StringFormat={}{0:dd/MM/yyyy hh:mm tt}}" Margin="0,0,16,0"/>
+                                                        <TextBlock Text="{Binding AmountOrQuantityLabel}" Foreground="#766B64"/>
+                                                        <TextBlock Text=": " Foreground="#766B64"/>
+                                                        <TextBlock Text="{Binding AmountOrQuantity, StringFormat={}{0:N2}}" FontWeight="SemiBold"/>
+                                                    </WrapPanel>
+                                                    <TextBlock Text="{Binding BlockingReason}" TextWrapping="Wrap" Foreground="#A0472D" Margin="0,7,0,0"/>
+                                                    <TextBlock Text="{Binding UnsupportedMessage}" TextWrapping="Wrap" Foreground="#C62828"
+                                                               FontWeight="SemiBold" Margin="0,5,0,0"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center">
+                                                    <Button Content="{Binding ActionLabel}"
+                                                            Command="{Binding DataContext.ResolveReopenBlockerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding}"
+                                                            Visibility="{Binding CanResolve, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                            Style="{StaticResource MaterialDesignRaisedButton}"
+                                                            Background="#8B5E4C" BorderBrush="#8B5E4C" Margin="0,0,0,8"/>
+                                                    <Button Content="عرض السجل"
+                                                            Command="{Binding DataContext.OpenReopenBlockerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource MaterialDesignOutlinedButton}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <ProgressBar IsIndeterminate="True" Margin="0,16,0,0"
+                                     Visibility="{Binding IsWorkingDayBusy, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    </StackPanel>
+                </md:Card>
+
+                <!-- Factory Reset Section -->
+                <md:Card UniformCornerRadius="16" Padding="32" Background="White" auth:PermissionAssist.Required="Settings.ResetSystem">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
+                            <md:PackIcon Kind="AlertDecagramOutline" Foreground="#C62828" Width="28" Height="28" VerticalAlignment="Center"/>
+                            <TextBlock Text="إعادة ضبط النظام" FontSize="20" FontWeight="Bold" Foreground="#C62828" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <TextBlock Text="سيؤدي هذا الإجراء إلى حذف جميع البيانات التشغيلية (فواتير، مبيعات، مشتريات، إنتاج، حركات مخزنية، يوميات) وإرجاع النظام لحالة البداية." 
+                                   FontSize="15" Foreground="#6B625D" TextWrapping="Wrap" Margin="0,0,0,24"/>
+
+                        <Border Background="#FFF5F5" BorderBrush="#FEE2E2" BorderThickness="1" CornerRadius="12" Padding="24">
+                            <StackPanel>
+                                <TextBlock Text="لتأكيد الحذف النهائي، يرجى كتابة كلمة DELETE في المربع أدناه:" 
+                                           FontSize="13" FontWeight="Bold" Foreground="#991B1B" Margin="0,0,0,12"/>
+                                
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <TextBox Text="{Binding ConfirmationText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                             md:HintAssist.Hint="اكتب DELETE هنا"
+                                             Height="50" FontSize="16" FontWeight="Black"
+                                             CharacterCasing="Upper"/>
+
+                                    <Button Grid.Column="1" Command="{Binding FactoryResetCommand}"
+                                            Visibility="{Binding CanResetSystem, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                            Style="{StaticResource MaterialDesignRaisedButton}"
+                                            Background="#C62828" BorderBrush="#C62828"
+                                            Height="50" Margin="16,0,0,0"
+                                            md:ButtonAssist.CornerRadius="10">
+                                        <StackPanel Orientation="Horizontal">
+                                            <md:PackIcon Kind="DeleteForever" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="حذف جميع البيانات" FontWeight="Black"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <ProgressBar IsIndeterminate="True" Margin="0,24,0,0" 
+                                     Visibility="{Binding IsResetting, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        <TextBlock Text="جاري إعادة الضبط... يرجى الانتظار" 
+                                   HorizontalAlignment="Center" Margin="0,8,0,0"
+                                   Visibility="{Binding IsResetting, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                   Foreground="#C62828" FontWeight="Bold"/>
+                    </StackPanel>
+                </md:Card>
+
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

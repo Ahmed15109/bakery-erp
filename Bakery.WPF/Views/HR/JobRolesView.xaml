@@ -1,0 +1,167 @@
+<UserControl x:Class="Bakery.WPF.Views.JobRolesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:loc="clr-namespace:Bakery.Shared.Helpers;assembly=Bakery.Shared"
+             xmlns:auth="clr-namespace:Bakery.WPF.Authorization"
+             Background="#FBF9F7"
+             FlowDirection="RightToLeft">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" /> <!-- Header -->
+            <RowDefinition Height="Auto" /> <!-- Stats -->
+            <RowDefinition Height="*" />    <!-- Table -->
+        </Grid.RowDefinitions>
+
+        <!-- 1. HEADER -->
+        <Grid Grid.Row="0" Margin="0,0,0,24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel>
+                <TextBlock Text="وظائف العاملين" FontSize="26" FontWeight="Black" Foreground="#2D2422"/>
+                <TextBlock Text="إدارة مسميات الوظائف وأنظمة احتساب الأجور" FontSize="13" Foreground="#8B7E7A" Margin="0,2,0,0"/>
+            </StackPanel>
+
+            <Button Grid.Column="1" Command="{Binding AddRoleCommand}"
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    Background="#8B5E4C" BorderBrush="#8B5E4C"
+                    Height="44" md:ButtonAssist.CornerRadius="10"
+                    VerticalAlignment="Bottom"
+                    auth:PermissionAssist.Required="Employees.Edit">
+                <StackPanel Orientation="Horizontal">
+                    <md:PackIcon Kind="BriefcasePlus" Margin="0,0,6,0" VerticalAlignment="Center" Width="18" Height="18"/>
+                    <TextBlock Text="إضافة وظيفة جديدة" FontWeight="Bold" FontSize="14"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- 2. STATS -->
+        <Grid Grid.Row="1" Margin="0,0,0,24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <md:Card Grid.Column="0" UniformCornerRadius="12" Margin="0,0,10,0" md:ElevationAssist.Elevation="Dp1">
+                <StackPanel Margin="20,12">
+                    <TextBlock Text="إجمالي الوظائف" FontSize="11" Foreground="#8B7E7A" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding Stats.TotalRoles}" FontSize="24" FontWeight="Black" Foreground="#2D2422"/>
+                </StackPanel>
+            </md:Card>
+
+            <md:Card Grid.Column="1" UniformCornerRadius="12" Margin="10,0,10,0" md:ElevationAssist.Elevation="Dp1">
+                <StackPanel Margin="20,12">
+                    <TextBlock Text="الوظائف النشطة" FontSize="11" Foreground="#8B7E7A" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding Stats.ActiveRoles}" FontSize="24" FontWeight="Black" Foreground="#4CAF50"/>
+                </StackPanel>
+            </md:Card>
+
+            <md:Card Grid.Column="2" UniformCornerRadius="12" Margin="10,0,0,0" md:ElevationAssist.Elevation="Dp1">
+                <StackPanel Margin="20,12">
+                    <TextBlock Text="الموظفين المسجلين" FontSize="11" Foreground="#8B7E7A" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding Stats.TotalEmployeesAssigned}" FontSize="24" FontWeight="Black" Foreground="#2196F3"/>
+                </StackPanel>
+            </md:Card>
+        </Grid>
+
+        <!-- 3. TABLE -->
+        <md:Card Grid.Row="2" UniformCornerRadius="12" md:ElevationAssist.Elevation="Dp2" Background="White" Padding="0">
+            <DataGrid ItemsSource="{Binding Roles}"
+                      SelectedItem="{Binding SelectedRole}"
+                      AutoGenerateColumns="False" CanUserAddRows="False"
+                      Style="{StaticResource MaterialDesignDataGrid}"
+                      Background="Transparent"
+                      RowHeight="56"
+                      AlternatingRowBackground="#FDFBFA">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="اسم الوظيفة" Binding="{Binding Name}" Width="*" FontWeight="Bold"/>
+                    
+                    <DataGridTemplateColumn Header="نوع الأجر" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding WageType, Converter={StaticResource EnumToLocConverter}}" VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTextColumn Header="قيمة الأجر" Binding="{Binding WageAmount, StringFormat='N2'}" Width="120">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="Foreground" Value="#8B5E4C"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Header="عدد الموظفين" Binding="{Binding Employees.Count, Mode=OneWay}" IsReadOnly="True" Width="100">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTemplateColumn Header="الحالة" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="10" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#E8F5E9"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                    <Setter Property="Background" Value="#F5F5F5"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{Binding IsActive, Converter={StaticResource BooleanToStatusConverter}}" 
+                                               FontSize="10" FontWeight="Bold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="#2E7D32"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                        <Setter Property="Foreground" Value="#757575"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Header="الإجراءات" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Button Command="{Binding DataContext.EditRoleCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource MaterialDesignFlatButton}" Width="32" Height="32" Padding="0" Margin="2,0"
+                                            auth:PermissionAssist.Required="Employees.Edit">
+                                        <md:PackIcon Kind="Pencil" Width="18" Height="18" Foreground="#8B5E4C"/>
+                                    </Button>
+                                    <Button Command="{Binding DataContext.DeleteRoleCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource MaterialDesignFlatButton}" Width="32" Height="32" Padding="0" Margin="2,0"
+                                            auth:PermissionAssist.Required="Employees.Delete">
+                                        <md:PackIcon Kind="Delete" Width="18" Height="18" Foreground="#D32F2F"/>
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </md:Card>
+    </Grid>
+</UserControl>
