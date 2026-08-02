@@ -165,9 +165,12 @@ public class DatabaseFixture : IDisposable
 
     public void Dispose()
     {
-        using var scope = ServiceProvider.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<BakeryDbContext>();
-        db.Database.EnsureDeleted();
+        using (var scope = ServiceProvider.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<BakeryDbContext>();
+            db.Database.EnsureDeleted();
+        }
+
         ServiceProvider.Dispose();
         try { if (Directory.Exists(_backupTestRoot)) Directory.Delete(_backupTestRoot, recursive: true); } catch { }
     }

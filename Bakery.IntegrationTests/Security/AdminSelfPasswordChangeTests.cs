@@ -14,6 +14,7 @@ using Xunit;
 
 namespace Bakery.IntegrationTests.Security;
 
+[Collection(AdminPasswordLocalDbIsolationCollection.Name)]
 public class AdminSelfPasswordChangeTests : IClassFixture<DatabaseFixture>
 {
     private readonly DatabaseFixture _fixture;
@@ -278,4 +279,10 @@ public class AdminSelfPasswordChangeTests : IClassFixture<DatabaseFixture>
             }
         }
     }
+}
+
+[CollectionDefinition(Name, DisableParallelization = true)]
+public sealed class AdminPasswordLocalDbIsolationCollection
+{
+    public const string Name = "Admin password LocalDB isolation";
 }

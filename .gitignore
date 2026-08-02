@@ -98,12 +98,15 @@ BakeryERP_Setup_v1.0.exe
 # Local Data
 #############################################
 
-Backups/
-Backup/
-Database/
-Data/
-Tokens/
-Credentials/
+# Runtime data directories created at the repository root. Root anchoring keeps
+# project source folders such as Bakery.Infrastructure/Data and */Backup tracked.
+/Backups/
+/Backup/
+/Database/
+/Data/
+/Tokens/
+/Credentials/
+*.berpbackup
 
 #############################################
 # SQL Server LocalDB

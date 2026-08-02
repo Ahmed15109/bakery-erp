@@ -200,7 +200,12 @@ public sealed class PresentationDependencyRuntimeTests : IClassFixture<DatabaseF
     public void GenerateAllSamplePdfArtifacts_OutputsPdfsAndPngsForVisualReview()
     {
         QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
-        var outputDir = @"C:\Users\Ahmed\.gemini\antigravity-ide\brain\2fa773b6-09b3-4e34-9acb-f3cbc37ed281\sample_pdfs";
+        var outputDir = Path.Combine(
+            Path.GetTempPath(),
+            "BakeryERP",
+            "TestArtifacts",
+            nameof(PresentationDependencyRuntimeTests),
+            "sample_pdfs");
         Directory.CreateDirectory(outputDir);
 
         // 1. Treasury Report

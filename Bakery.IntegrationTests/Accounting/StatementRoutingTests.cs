@@ -433,7 +433,13 @@ public class StatementRoutingTests : IClassFixture<DatabaseFixture>
             employeeLedger.Add((tx.Type.ToString(), debit, credit, runningBalance));
         }
 
-        var logPath = @"C:\Users\Ahmed\.gemini\antigravity-ide\brain\7fce4373-068e-4c94-886c-a3ceab48725b\runtime_comparison_evidence.txt";
+        var outputDirectory = Path.Combine(
+            Path.GetTempPath(),
+            "BakeryERP",
+            "TestArtifacts",
+            nameof(StatementRoutingTests));
+        Directory.CreateDirectory(outputDirectory);
+        var logPath = Path.Combine(outputDirectory, "runtime_comparison_evidence.txt");
         using var sw = new StreamWriter(logPath);
         sw.WriteLine("| Transaction | Ledger Debit | Ledger Credit | Ledger Balance | Party Statement Increase | Party Statement Decrease | Party Statement Balance | Match |");
         sw.WriteLine("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |");

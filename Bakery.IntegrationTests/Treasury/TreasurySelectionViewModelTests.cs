@@ -91,9 +91,19 @@ public sealed class TreasurySelectionViewModelTests
         await viewModel.PrintReportCommand.ExecuteAsync(null);
 
         safeService.LastReportTreasuryId.Should().Be(2);
-        printService.LastDocument.Should().NotBeNull();
-        printService.LastDocument!.ToString().Should().Contain("رقم 2");
-        printService.LastDocument.ToString().Should().NotContain("رقم 1)");
+        var report = printService.LastDocument.Should().BeOfType<PdfReportRequest>().Subject;
+        report.Title.Should().Contain("Treasury 2");
+        report.Title.Should().NotContain("Treasury 1");
+
+        var reportRow = report.Data.Should().ContainSingle().Which;
+        var reportRowValues = reportRow.GetType()
+            .GetProperties()
+            .Select(property => property.GetValue(reportRow)?.ToString())
+            .ToArray();
+        reportRowValues.Should().Contain("TX-2");
+        reportRowValues.Should().Contain("Movement 2");
+        reportRowValues.Should().NotContain("TX-1");
+        reportRowValues.Should().NotContain("Movement 1");
     }
 
     [Fact]

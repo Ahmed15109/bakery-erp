@@ -28,6 +28,7 @@ public class DashboardActiveSafeTrackingTests : IDisposable
     private readonly BakeryDbContext _dbContext;
     private readonly string _dbName;
 
+    private int _userId;
     private int _branch1Id;
     private int _branch2Id;
     private int _dailySafeId;
@@ -56,8 +57,8 @@ public class DashboardActiveSafeTrackingTests : IDisposable
         services.AddScoped<IBranchProvisioningService, TestBranchProvisioningService>();
         services.AddScoped<IBranchSwitchService, BranchSwitchService>();
         services.AddScoped<IPermissionService, TestPermissionService>();
-        services.AddScoped<IUserSessionService, TestUserSessionService>();
-        services.AddScoped<ICurrentUserService>(sp => sp.GetRequiredService<IUserSessionService>());
+        services.AddSingleton<IUserSessionService, TestUserSessionService>();
+        services.AddSingleton<ICurrentUserService>(sp => sp.GetRequiredService<IUserSessionService>());
         services.AddScoped<IUserSafePermissionService, TestUserSafePermissionService>();
         services.AddScoped<IWorkingDayService, TestWorkingDayService>();
         services.AddScoped<IDefaultCashSafeService, TestDefaultCashSafeService>();
@@ -68,7 +69,7 @@ public class DashboardActiveSafeTrackingTests : IDisposable
         services.AddScoped<INavigationService, TestNavigationService>();
         services.AddScoped<IMessageService, TestMessageService>();
         services.AddScoped<IDialogService, TestDialogService>();
-        services.AddScoped<IBranchContext, TestBranchContext>();
+        services.AddSingleton<IBranchContext, TestBranchContext>();
         services.AddScoped<IBackupService, TestBackupService>();
         services.AddSingleton<IBackupStatusNotifier, TestBackupStatusNotifier>();
 
@@ -86,19 +87,25 @@ public class DashboardActiveSafeTrackingTests : IDisposable
 
     private async Task SeedDataAsync()
     {
-        var user = new User { Id = 1, Username = "admin", FullName = "Admin", IsActive = true };
+        var user = new User { Username = "admin", FullName = "Admin", IsActive = true };
         _dbContext.Users.Add(user);
 
         var b1 = new Branch { Name = "Branch 1", Code = "B1", IsActive = true };
         var b2 = new Branch { Name = "Branch 2", Code = "B2", IsActive = true };
         _dbContext.Branches.AddRange(b1, b2);
         await _dbContext.SaveChangesAsync();
+        _userId = user.Id;
         _branch1Id = b1.Id;
         _branch2Id = b2.Id;
 
+        _serviceProvider.GetRequiredService<IUserSessionService>().SignIn(
+            new AuthenticatedUserDto(_userId, user.Username, user.FullName, [], true));
+        ((IInternalBranchContext)_serviceProvider.GetRequiredService<IBranchContext>()).ConfigureBranch(
+            new BranchDto(_branch1Id, b1.Code, b1.Name, b1.IsActive, b1.Notes));
+
         _dbContext.UserBranches.AddRange(
-            new UserBranch { UserId = 1, BranchId = _branch1Id },
-            new UserBranch { UserId = 1, BranchId = _branch2Id }
+            new UserBranch { UserId = _userId, BranchId = _branch1Id },
+            new UserBranch { UserId = _userId, BranchId = _branch2Id }
         );
         await _dbContext.SaveChangesAsync();
 
@@ -314,16 +321,16 @@ public class DashboardActiveSafeTrackingTests : IDisposable
 
     private class TestUserSessionService : IUserSessionService
     {
-        public AuthenticatedUserDto? CurrentUser { get; set; } = new AuthenticatedUserDto(1, "admin", "Admin", [], true);
-        public bool IsAuthenticated => true;
+        public AuthenticatedUserDto? CurrentUser { get; private set; }
+        public bool IsAuthenticated => CurrentUser is not null;
         public void SignIn(AuthenticatedUserDto user) => CurrentUser = user;
         public void SignOut() => CurrentUser = null;
         public bool HasPermission(string permissionKey) => true;
-        public int? UserId => 1;
-        public string Username => "admin";
-        public string FullName => "Admin";
-        public IReadOnlyCollection<string> Permissions => Array.Empty<string>();
-        public bool IsSuperAdmin => true;
+        public int? UserId => CurrentUser?.UserId;
+        public string Username => CurrentUser?.Username ?? string.Empty;
+        public string FullName => CurrentUser?.FullName ?? string.Empty;
+        public IReadOnlyCollection<string> Permissions => CurrentUser?.Permissions ?? Array.Empty<string>();
+        public bool IsSuperAdmin => CurrentUser?.IsSuperAdmin ?? false;
     }
 
     private class TestUserSafePermissionService : IUserSafePermissionService
@@ -437,7 +444,7 @@ public class DashboardActiveSafeTrackingTests : IDisposable
     private class TestBranchContext : IInternalBranchContext
     {
         public int? CurrentBranchId => CurrentBranch?.Id;
-        public BranchDto? CurrentBranch { get; set; } = new BranchDto(1, "B1", "Branch 1", true, null);
+        public BranchDto? CurrentBranch { get; private set; }
         public void ConfigureBranch(BranchDto branch) => CurrentBranch = branch;
         public void Clear() => CurrentBranch = null;
     }

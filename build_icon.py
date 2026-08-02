@@ -96,8 +96,8 @@ def get_svg_content(transparent=False):
     return svg
 
 def main():
-    root_dir = r"c:\Users\Ahmed\OneDrive\Desktop\bakery"
-    wpf_dir = r"c:\Users\Ahmed\OneDrive\Desktop\bakery\Bakery.WPF"
+    root_dir = os.path.dirname(os.path.abspath(__file__))
+    wpf_dir = os.path.join(root_dir, "Bakery.WPF")
     
     svg_opaque = get_svg_content(transparent=False)
     svg_trans = get_svg_content(transparent=True)
