@@ -1,36 +1,42 @@
-# Bakery ERP — Deployment Guide
+# Bakery ERP Deployment Guide
 
-## System Requirements
-- OS: Windows 10/11 (64-bit)
-- Runtime: none for the supported self-contained installer
-- Database: **Microsoft SQL Server Express LocalDB x64, version 2019 or newer**
-- Supported instance for version 1.0: `(localdb)\MSSQLLocalDB`
+## System requirements
 
-The version 1.0 installer does not support a separately managed SQL Server Express named
-instance as its default deployment target. A deployment that deliberately uses another
-supported SQL Server connection must place its override in the per-user configuration file
-described below and qualify that environment independently.
+- Windows 10 or Windows 11, 64-bit.
+- Microsoft SQL Server Express LocalDB x64, version 2019 or newer.
+- The supported default instance: `(localdb)\MSSQLLocalDB`.
+- Administrator access when installing the Inno Setup package.
 
-If LocalDB is missing, setup stops before copying the application and displays Arabic
-installation instructions. Install LocalDB from the official
-[Microsoft SQL Server 2022 Express download](https://www.microsoft.com/download/details.aspx?id=104781),
-then run Bakery ERP setup again. In the SQL Server Express download workflow, select the
-LocalDB package.
+The supported installer is a self-contained `win-x64` deployment, so it does not require a separately installed .NET runtime. LocalDB remains a prerequisite. If it is absent, setup stops before copying the application and offers the official [Microsoft SQL Server 2022 Express download](https://www.microsoft.com/download/details.aspx?id=104781); install the LocalDB component, then run setup again.
 
-## Compilation & Publishing
-To prepare the application for production deployment, build in Release mode:
+The default deployment target is LocalDB. A deployment that deliberately uses another SQL Server connection must supply it through the per-user configuration described below and qualify that environment independently.
+
+## Publish and package
+
+From the repository root:
 
 ```powershell
-dotnet publish Bakery.WPF/Bakery.WPF.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
+dotnet restore .\BakeryERP.sln
+dotnet build .\BakeryERP.sln -c Release
+dotnet publish .\Bakery.WPF\Bakery.WPF.csproj `
+  -c Release `
+  -r win-x64 `
+  --self-contained true `
+  -p:PublishSingleFile=true `
+  -o .\publish
 ```
 
-## Portable Mode
-1. Copy the output of the publish folder to a USB drive or target PC folder (e.g., `C:\BakeryERP`).
-2. Confirm LocalDB is installed before launching the portable copy.
-3. The application will create and migrate its database on first launch.
+The Inno Setup script consumes `publish\` and produces the installer:
 
-## SQL Server Configuration
-The shipped version 1.0 configuration uses the supported LocalDB automatic instance:
+```powershell
+iscc .\BakeryERP.iss
+```
+
+Inno Setup 6 is required only for the packaging step. A portable deployment may copy the contents of `publish\` to the target computer, but LocalDB must still be installed before first launch.
+
+## Database configuration
+
+The tracked defaults use Windows integrated authentication with the supported automatic LocalDB instance:
 
 ```json
 {
@@ -40,34 +46,43 @@ The shipped version 1.0 configuration uses the supported LocalDB automatic insta
 }
 ```
 
-## Customer Configuration and Upgrade Preservation
+## Configuration and upgrade preservation
 
-`appsettings.defaults.json` is immutable application-owned configuration installed beside the
-executable. Do not edit it. Bakery ERP loads an optional customer override from:
+`appsettings.defaults.json` is application-owned configuration installed beside the executable. Do not edit it on a customer computer. Bakery ERP creates and loads the per-user override at:
 
 `%LOCALAPPDATA%\BakeryERP\appsettings.user.json`
 
-The per-user file is created on first launch and is never installed, overwritten, or deleted by
-setup/uninstall. Environment variables and command-line values take precedence over both JSON
-files. Configuration changes require an application restart.
+Configuration precedence is:
 
-On the first launch after upgrading an older installation, Bakery ERP copies the prior
-executable-side `appsettings.json` to the per-user location only when no per-user file already
-exists. Later upgrades never overwrite customer changes.
+1. installed `appsettings.defaults.json`;
+2. per-user `appsettings.user.json`;
+3. environment variables;
+4. command-line arguments.
 
-Google Drive OAuth deployment values are not shipped in source or installer defaults. Supply
-both `GoogleDrive:ClientId` and `GoogleDrive:ClientSecret` through the per-user file or protected
-deployment environment. OAuth access/refresh tokens are stored separately with Windows DPAPI;
-never place tokens in either JSON file.
+Changes require an application restart. The installer does not install, overwrite, or remove the per-user file. On the first launch after upgrading an older installation, the application migrates an executable-side `appsettings.json` only when no per-user file exists.
 
-The application validates the effective database connection shape and paired Google OAuth
-settings before starting services. Validation errors identify the setting but do not echo the
-connection string or credential value into the log/UI.
+Google Drive OAuth values are not shipped in source or installer defaults. Provide both `GoogleDrive:ClientId` and `GoogleDrive:ClientSecret` through the per-user file or a protected deployment environment, or leave both empty to disable cloud backup. OAuth access and refresh tokens are protected separately with Windows DPAPI; never place tokens in either JSON file.
 
-## First Launch Experience
-- The app will run migrations automatically.
-- If no user exists, a mandatory Arabic first-run screen asks the bakery owner to choose the
-  first administrator username, full name, and a password of at least 12 characters.
-- No universal default production password is shipped.
-- After the first administrator is created, the setup screen cannot create another one.
-- The `Health Monitor` should show all systems as "Online".
+The application validates the effective database connection and requires the two Google OAuth settings to be supplied together. Validation errors identify the setting without echoing secret values.
+
+## Application data
+
+Runtime data is stored under `%LOCALAPPDATA%\BakeryERP\`, independently of the installation directory:
+
+| Path | Contents |
+|---|---|
+| `appsettings.user.json` | Per-user configuration overrides |
+| `Backups\` | Default local backup destination; an authorized user can select another folder |
+| `Logs\` | Structured application and startup logs |
+| `Attachments\`, `Documents\`, `Templates\`, `Logos\` | User-managed application content included in backups |
+| `RestoreWork\` | Temporary validated restore workspace, cleaned by the application |
+| `BackupDownloads\` | Controlled download workspace for cloud backups |
+| `backup-encryption.key` | Device-backup key protected for the current Windows user with DPAPI |
+
+Uninstall removes application files but preserves user configuration and data. Back up the database, application content, and the Windows profile material needed for device-protected backups before replacing a computer or Windows account.
+
+## First launch and upgrades
+
+At startup, Bakery ERP validates configuration, creates the database when needed, takes a safety snapshot before migrating an existing database, applies pending EF Core migrations, seeds required reference data, and runs an integrity check. If no user exists, a mandatory Arabic setup screen asks the owner to create the first Super Administrator with a password of at least 12 characters. No universal production credential is shipped, and the setup flow cannot create a second initial administrator.
+
+After an upgrade, confirm that the application starts, the expected branch can be selected, the Health Monitor can read database and backup status, and a manual backup completes before normal operation resumes.

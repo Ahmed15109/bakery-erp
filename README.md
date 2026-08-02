@@ -255,19 +255,19 @@ Application screenshots are not currently stored in the repository. **Screenshot
 
 | Document | Scope |
 |---|---|
-| [Documentation index](docs/README.md) | Map of operator, developer, internal, and archived material |
+| [Documentation index](docs/README.md) | Current operator and developer guidance |
 | [Deployment guide](docs/developer/DEPLOYMENT_GUIDE.md) | Windows, LocalDB, publishing, configuration, upgrade, and first-launch guidance |
 | [Backup encryption format](docs/developer/BACKUP_ENCRYPTION_FORMAT.md) | `.berpbackup` v1 envelope, key modes, cryptography, and compatibility policy |
 | [Dependency decision](docs/developer/DEPENDENCY_DECISION.md) | LiveCharts, SkiaSharp, OpenTK, warning scope, and SDK policy |
 
-Detailed implementation history remains available through the [documentation index](docs/README.md) and [`docs/archive/`](docs/archive/); the root README intentionally focuses on the product, architecture, and developer entry points.
+Additional operational and technical guidance is available through the [documentation index](docs/README.md); the root README intentionally focuses on the product, architecture, and developer entry points.
 
 ## Roadmap
 
 The following items are **planned improvements**, not implemented features:
 
 - Add a LocalDB-capable GitHub Actions workflow before publishing any build-status badge.
-- Add redacted screenshots from the current application and refresh the operator guide to match current backup retention and workflows.
+- Add redacted screenshots from the current application.
 - Add Authenticode signing and automated, checksum-published installer releases.
 - Move reporting data access behind application-owned query contracts to remove the direct reporting-to-infrastructure dependency.
 - Expand clean-machine, physical printer, restore-drill, and live Google Drive acceptance testing.
